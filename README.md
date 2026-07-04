@@ -1,8 +1,8 @@
 # 🖥️ OmniWeigh
 
-**OmniWeigh** is a modern, high-performance industrial desktop application designed to automate, streamline, and secure metrological weighing operations[cite: 1]. It interfaces directly with hardware weighing terminals via serial communication to capture weight data in real-time, eliminating manual data entry errors, omissions, and operational fraud[cite: 1].
+**OmniWeigh** is a modern, high-performance industrial desktop application designed to automate, streamline, and secure metrological weighing operations. It interfaces directly with hardware weighing terminals via serial communication to capture weight data in real-time, eliminating manual data entry errors, omissions, and operational fraud.
 
-The software is engineered with a strict modular monolithic architecture (**Modulith**), ensuring clear domain boundaries, local reliability, and a seamless path toward future cloud-synchronized deployments[cite: 1].
+The software is engineered with a strict modular monolithic architecture (**Modulith**), ensuring clear domain boundaries, local reliability, and a seamless path toward future cloud-synchronized deployments.
 
 ---
 
@@ -10,9 +10,9 @@ The software is engineered with a strict modular monolithic architecture (**Modu
 
 OmniWeigh is split into highly isolated functional modules, each managing a dedicated business domain of the industrial weighing ecosystem:
 
-* **Weighing Domain:** Handles real-time metrological acquisition from hardware scale indicators (RS232/USB) and tracks stable weight states automatically[cite: 1].
+* **Weighing Domain:** Handles real-time metrological acquisition from hardware scale indicators (RS232/USB) and tracks stable weight states automatically.
 * **Document & Logging Domain:** Manages local data persistence, historical logging, and the generation of standardized weight tickets and Delivery Notes (Bons de Livraison).
-* **Identity & Security Domain:** Enforces hardware-bound licensing verification tightly coupled with the unique fingerprint (Hardware ID - HWID) of the deployment workstation to prevent unauthorized execution or tampering[cite: 1].
+* **Identity & Security Domain:** Enforces hardware-bound licensing verification tightly coupled with the unique fingerprint (Hardware ID - HWID) of the deployment workstation to prevent unauthorized execution or tampering.
 
 ---
 
