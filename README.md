@@ -19,9 +19,9 @@ OmniWeigh is split into highly isolated functional modules, each managing a dedi
 ## 🛠️ Global Tech Stack
 
 * **Platform:** .NET 10
-* **Presentation Layer:** Windows Presentation Foundation (WPF) / MVVM Pattern[cite: 1]
-* **Architecture Style:** Modulith (Modular Monolith)[cite: 1]
-* **Hardware Interface:** Serial Port Protocols (RS232 / USB)[cite: 1]
+* **Presentation Layer:** Windows Presentation Foundation (WPF) / MVVM Pattern
+* **Architecture Style:** Modulith (Modular Monolith)
+* **Hardware Interface:** Serial Port Protocols (RS232 / USB)
 
 ---
 
@@ -35,7 +35,7 @@ We believe in maximum operational reliability for industrial environments. OmniW
 
 OmniWeigh is **Proprietary Software**. All rights reserved by the author **Granix**. 
 
-The hosting of this source code on a public GitHub repository does not grant any right to copy, modify, distribute, sublicense, or use the application for commercial, industrial, or personal deployment without an official paid license[cite: 1]. 
+The hosting of this source code on a public GitHub repository does not grant any right to copy, modify, distribute, sublicense, or use the application for commercial, industrial, or personal deployment without an official paid license. 
 
 * For purchasing official per-scale licenses, requesting custom industrial modules, or scheduling deployments, please submit an inquiry through official distribution channels or contact the repository owner.
 * Review the full terms in the accompanying `LICENSE` file.
