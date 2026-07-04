@@ -33,7 +33,7 @@ We believe in maximum operational reliability for industrial environments. OmniW
 
 ## 🛡️ License & Commercial Inquiries
 
-OmniWeigh is **Proprietary Software**. All rights reserved by the author (**Granix**)[cite: 1]. 
+OmniWeigh is **Proprietary Software**. All rights reserved by the author **Granix**. 
 
 The hosting of this source code on a public GitHub repository does not grant any right to copy, modify, distribute, sublicense, or use the application for commercial, industrial, or personal deployment without an official paid license[cite: 1]. 
 
