@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OmniWeigh.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OmniWeigh.Core.Data
 {

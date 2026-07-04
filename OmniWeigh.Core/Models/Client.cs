@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OmniWeigh.Core.Models
+﻿namespace OmniWeigh.Core.Models
 {
     public class Client
     {

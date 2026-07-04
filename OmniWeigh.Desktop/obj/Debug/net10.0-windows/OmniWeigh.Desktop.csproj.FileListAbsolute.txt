@@ -84,3 +84,4 @@ C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Desktop\obj\Debug\net10.0-w
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Desktop\obj\Debug\net10.0-windows\OmniWeigh.Desktop.pdb
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Desktop\obj\Debug\net10.0-windows\OmniWeigh.Desktop.genruntimeconfig.cache
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Desktop\obj\Debug\net10.0-windows\ref\OmniWeigh.Desktop.dll
+C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Desktop\obj\Debug\net10.0-windows\OmniWeigh.Desktop.sourcelink.json

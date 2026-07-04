@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO.Ports;
+﻿using System.IO.Ports;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace OmniWeigh.Core.Drivers
 {

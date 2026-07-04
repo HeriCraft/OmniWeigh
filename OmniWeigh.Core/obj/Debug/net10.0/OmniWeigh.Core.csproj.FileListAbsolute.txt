@@ -10,3 +10,4 @@ C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Core\obj\Debug\net10.0\Omni
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Core\obj\Debug\net10.0\refint\OmniWeigh.Core.dll
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Core\obj\Debug\net10.0\OmniWeigh.Core.pdb
 C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Core\obj\Debug\net10.0\ref\OmniWeigh.Core.dll
+C:\Users\WINDOWS 11\source\repos\OmniWeigh\OmniWeigh.Core\obj\Debug\net10.0\OmniWeigh.Core.sourcelink.json

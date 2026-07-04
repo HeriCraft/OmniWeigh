@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OmniWeigh.Core.Drivers
+﻿namespace OmniWeigh.Core.Drivers
 {
     public interface IBalanceDriver : IDisposable
     {

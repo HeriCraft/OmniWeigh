@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OmniWeigh.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63ba1de10e712f276f2264f9615a3e5b4b7b1798")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98b63cefffa4ea9d3201a1cba5cf635833258d1e")]
 [assembly: System.Reflection.AssemblyProductAttribute("OmniWeigh.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OmniWeigh.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
