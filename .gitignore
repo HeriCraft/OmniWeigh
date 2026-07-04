@@ -1,3 +1,5 @@
 .vs/
-[Bb]in/
-[Oo]bj/
+OmniWeigh.Core/[Bb]in/
+OmniWeigh.Core/[Oo]bj/
+OmniWeigh.Desktop/[Bb]in/
+OmniWeigh.Desktop/[Oo]bj/
