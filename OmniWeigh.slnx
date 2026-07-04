@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="OmniWeigh.Core/OmniWeigh.Core.csproj" />
+  <Project Path="OmniWeigh.Desktop/OmniWeigh.Desktop.csproj" />
+</Solution>

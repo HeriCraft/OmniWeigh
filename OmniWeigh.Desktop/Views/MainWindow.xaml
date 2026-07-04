@@ -1,0 +1,294 @@
+﻿<Window x:Class="OmniWeigh.Desktop.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OmniWeigh.Desktop.Views"
+        mc:Ignorable="d"
+        Title="OmniWeigh v1.0 — Station de Pesage Métrologique" 
+        Height="700" Width="1050"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI">
+
+    <Grid Background="#F4F5F7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#2D3238" Padding="20,12">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="OMNIWEIGH" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                    <Border Background="#4A525A" CornerRadius="3" Margin="12,0,0,0" Padding="6,2">
+                        <TextBlock Text="STATION ACTIVE" Foreground="#00FF66" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8" Fill="#00FF66" Margin="0,0,8,0"/>
+                    <TextBlock Text="Indicateur connecté (COM3 @ 9600 bps)" Foreground="#D1D5DB" FontSize="12"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" TabStripPlacement="Left" Background="Transparent" BorderThickness="0" Margin="0,15,15,15">
+
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Padding" Value="20,15"/>
+                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Margin" Value="0,0,0,4"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="0,4,4,0">
+                                    <ContentPresenter ContentSource="Header" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="#0F4C81"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter Property="Foreground" Value="#4A525A"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem Header="⚖  Pesage en Direct">
+                <Grid Background="White" Margin="15,0,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="320"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Padding="40,30">
+                        <StackPanel>
+                            <TextBlock Text="Sélection de la pesée en cours" FontSize="14" FontWeight="Bold" Foreground="#2D3238" Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,0,0,25">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                                    <TextBlock Text="Client / Partenaire" Foreground="#7A828A" Margin="0,0,0,6" FontSize="12" FontWeight="SemiBold"/>
+                                    <ComboBox SelectedIndex="1" Padding="10">
+                                        <ComboBoxItem Content="-- Choisir un client B2B --"/>
+                                        <ComboBoxItem Content="Agro-Export Madagascar (Ankorondrano)"/>
+                                        <ComboBoxItem Content="Société de Transport Analamanga"/>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="15,0,0,0">
+                                    <TextBlock Text="Produit / Marchandise" Foreground="#7A828A" Margin="0,0,0,6" FontSize="12" FontWeight="SemiBold"/>
+                                    <ComboBox SelectedIndex="1" Padding="10">
+                                        <ComboBoxItem Content="-- Choisir un produit --"/>
+                                        <ComboBoxItem Content="Café Vert (Grains de Madagascar)"/>
+                                        <ComboBoxItem Content="Vanille Gousse (Grade A)"/>
+                                    </ComboBox>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Background="#0F4C81" BorderBrush="#E2E8F0" BorderThickness="2" CornerRadius="4" Padding="35,25" Height="160">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="POIDS NET STABLE" Foreground="LightBlue" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Text="1250.50" Foreground="LightCyan" FontSize="68" FontWeight="Bold" FontFamily="Consolas" Margin="0,5,0,0"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="1" Text="kg" Foreground="LightCyan" FontSize="36" FontWeight="Bold" VerticalAlignment="Bottom" Margin="10,0,0,10"/>
+                                </Grid>
+                            </Border>
+
+                            <Grid Margin="0,35,0,0">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button Content="Mettre à Zéro" Width="120" Padding="0,12" Background="#F8F9FA" BorderBrush="#E2E8F0" FontWeight="SemiBold" Foreground="#2D3238"/>
+                                    <Button Content="Prendre Tare" Width="120" Padding="0,12" Margin="10,0,0,0" Background="#F8F9FA" BorderBrush="#E2E8F0" FontWeight="SemiBold" Foreground="#2D3238"/>
+                                </StackPanel>
+                                <Button Content="Enregistrer la Pesée Secure" HorizontalAlignment="Right" Width="220" Padding="0,12" Background="#0F4C81" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="#F8F9FA" BorderBrush="#E2E8F0" BorderThickness="1,0,0,0" Padding="25">
+                        <StackPanel>
+                            <TextBlock Text="Métriques Brutes" FontSize="13" FontWeight="Bold" Foreground="#2D3238" Margin="0,0,0,15"/>
+
+                            <Grid Margin="0,0,0,12">
+                                <TextBlock Text="Poids Brut" Foreground="#7A828A"/>
+                                <TextBlock Text="1270.50 kg" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="#2D3238"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,15">
+                                <TextBlock Text="Tare Déduite" Foreground="#7A828A"/>
+                                <TextBlock Text="20.00 kg" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="#2D3238"/>
+                            </Grid>
+
+                            <Separator Background="#E2E8F0" Margin="0,10,0,20"/>
+
+                            <TextBlock Text="Dernière Opération" FontSize="13" FontWeight="Bold" Foreground="#2D3238" Margin="0,0,0,15"/>
+                            <TextBlock Text="ID Ticket : #00451" FontSize="12" Foreground="#2D3238" Margin="0,0,0,4"/>
+                            <TextBlock Text="Client : Agro-Export Mada" FontSize="12" Foreground="#7A828A" Margin="0,0,0,4"/>
+                            <TextBlock Text="Poids enregistré : 840.00 kg" FontSize="12" Foreground="#7A828A"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="📋 Journal des Pesées">
+                <Border Background="White" Margin="15,0,0,0" Padding="30">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                <TextBox Width="280" Text="Rechercher un ticket, client..." Padding="8" VerticalContentAlignment="Center" Foreground="#7A828A" BorderBrush="#E2E8F0"/>
+                                <Button Content="Filtrer" Padding="20,0" Margin="10,0,0,0" Background="#2D3238" Foreground="White" BorderThickness="0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Exporter vers Excel" Padding="15,8" Background="#F8F9FA" BorderBrush="#E2E8F0" FontWeight="SemiBold" Foreground="#2D3238" Margin="0,0,10,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <ListView Grid.Row="1" BorderBrush="#E2E8F0">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="60" DisplayMemberBinding="{Binding Id}"/>
+                                    <GridViewColumn Header="Date &amp; Heure" Width="140" DisplayMemberBinding="{Binding DateTime}"/>
+                                    <GridViewColumn Header="Client B2B" Width="220" DisplayMemberBinding="{Binding Client}"/>
+                                    <GridViewColumn Header="Product" Width="160" DisplayMemberBinding="{Binding Product}"/>
+                                    <GridViewColumn Header="Poids Brut (kg)" Width="100" DisplayMemberBinding="{Binding Gross}"/>
+                                    <GridViewColumn Header="Tare (kg)" Width="80" DisplayMemberBinding="{Binding Tare}"/>
+                                    <GridViewColumn Header="Poids Net (kg)" Width="100" DisplayMemberBinding="{Binding Net}"/>
+                                </GridView>
+                            </ListView.View>
+                            <ListViewItem>
+                                <local:MockRow Id="00451" DateTime="02/07/2026 09:14" Client="Agro-Export Madagascar" Product="Vanille Gousse" Gross="1270.50" Tare="20.00" Net="1250.50"/>
+                            </ListViewItem>
+                        </ListView>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="👥 Gestion Clients">
+                <Border Background="White" Margin="15,0,0,0" Padding="30">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Registre des Clients Partenaires" FontSize="16" FontWeight="Bold" Foreground="#2D3238" VerticalAlignment="Center"/>
+                            <Button Content="+ Ajouter un Nouveau Client" HorizontalAlignment="Right" Padding="15,8" Background="#0F4C81" Foreground="White" FontWeight="SemiBold" BorderThickness="0"/>
+                        </Grid>
+
+                        <ListView Grid.Row="1" BorderBrush="#E2E8F0">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Code Intégration" Width="120" DisplayMemberBinding="{Binding Id}"/>
+                                    <GridViewColumn Header="Raison Sociale" Width="300" DisplayMemberBinding="{Binding Client}"/>
+                                    <GridViewColumn Header="Contact / Téléphone" Width="250" DisplayMemberBinding="{Binding DateTime}"/>
+                                </GridView>
+                            </ListView.View>
+                            <ListViewItem>
+                                <local:MockRow Id="CLI-0021" Client="Agro-Export Madagascar" DateTime="+261 34 00 123 45"/>
+                            </ListViewItem>
+                            <ListViewItem>
+                                <local:MockRow Id="CLI-0022" Client="Société de Transport Analamanga" DateTime="+261 32 11 987 65"/>
+                            </ListViewItem>
+                        </ListView>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="📦 Gestion Produits">
+                <Border Background="White" Margin="15,0,0,0" Padding="30">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <TextBlock Text="Catalogue des Articles &amp; Marchandises" FontSize="16" FontWeight="Bold" Foreground="#2D3238" VerticalAlignment="Center"/>
+                            <Button Content="+ Ajouter un Nouveau Produit" HorizontalAlignment="Right" Padding="15,8" Background="#0F4C81" Foreground="White" FontWeight="SemiBold" BorderThickness="0"/>
+                        </Grid>
+
+                        <ListView Grid.Row="1" BorderBrush="#E2E8F0">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID Produit" Width="100" DisplayMemberBinding="{Binding Id}"/>
+                                    <GridViewColumn Header="Désignation Marchandise" Width="350" DisplayMemberBinding="{Binding Product}"/>
+                                    <GridViewColumn Header="Code-barres / Référence" Width="220" DisplayMemberBinding="{Binding Client}"/>
+                                </GridView>
+                            </ListView.View>
+                            <ListViewItem>
+                                <local:MockRow Id="PRD-882" Product="Café Vert (Grains de Madagascar)" Client="611002934812"/>
+                            </ListViewItem>
+                            <ListViewItem>
+                                <local:MockRow Id="PRD-883" Product="Vanille Gousse (Grade A)" Client="611002934955"/>
+                            </ListViewItem>
+                        </ListView>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <TabItem Header="⚙  Configuration">
+                <Border Background="White" Margin="15,0,0,0" Padding="40,30">
+                    <StackPanel MaxWidth="450" HorizontalAlignment="Left">
+                        <TextBlock Text="Configuration de l'indicateur matériel" FontSize="16" FontWeight="Bold" Foreground="#2D3238" Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Pilote Protocole Balance" Foreground="#7A828A" Margin="0,0,0,6" FontSize="12" FontWeight="SemiBold"/>
+                        <ComboBox SelectedIndex="1" Padding="10" Margin="0,0,0,20">
+                            <ComboBoxItem Content="Generic ASCII Data Stream"/>
+                            <ComboBoxItem Content="Mettler Toledo SICS Interface"/>
+                        </ComboBox>
+
+                        <Grid Margin="0,0,0,30">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Text="Port Série Windows" Foreground="#7A828A" Margin="0,0,0,6" FontSize="12" FontWeight="SemiBold"/>
+                                <ComboBox SelectedIndex="1" Padding="10">
+                                    <ComboBoxItem Content="COM1"/>
+                                    <ComboBoxItem Content="COM3 (Adaptateur USB-RS232)"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                <TextBlock Text="Vitesse (Baud Rate)" Foreground="#7A828A" Margin="0,0,0,6" FontSize="12" FontWeight="SemiBold"/>
+                                <ComboBox SelectedIndex="1" Padding="10">
+                                    <ComboBoxItem Content="4800 bps"/>
+                                    <ComboBoxItem Content="9600 bps"/>
+                                    <ComboBoxItem Content="19200 bps"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <Button Content="Enregistrer la Configuration Matérielle" Padding="20,12" Background="#2D3238" Foreground="White" FontWeight="SemiBold" BorderThickness="0" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
