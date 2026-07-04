@@ -1,5 +1,6 @@
 ﻿namespace OmniWeigh.Core.Drivers
 {
+    public record WeightReading(double Value, bool IsStable, string RawFrame);
     public interface IBalanceDriver : IDisposable
     {
         string BrandName { get; }

@@ -10,6 +10,7 @@ namespace OmniWeigh.Desktop.Views
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new OmniWeigh.Desktop.ViewModels.WeighingViewModel();
         }
     }
 
