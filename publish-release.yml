@@ -1,0 +1,85 @@
+name: Build and Package OmniWeigh Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-package:
+    runs-on: windows-latest
+
+    # Grants write permission to the GITHUB_TOKEN so it can push tags
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    # 1. Extract version from the .csproj file
+    - name: Extract Project Version
+      id: get_version
+      shell: pwsh
+      run: |
+        $csprojPath = "src/OmniWeigh.UI/OmniWeigh.UI.csproj"
+        [xml]$xml = Get-Content $csprojPath
+        $version = $xml.Project.PropertyGroup.Version
+        if (-not $version) { $version = "1.0.0" }
+        echo "PROJECT_VERSION=$version" >> $env:GITHUB_OUTPUT
+
+    # 2. Restore NuGet Packages
+    - name: Restore NuGet Packages
+      run: dotnet restore OmniWeigh.slnx
+
+    # 3. Publish Application (Uses the .csproj version natively)
+    - name: Publish Application
+      run: |
+        dotnet publish src/OmniWeigh.UI/OmniWeigh.UI.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:PublishReadyToRun=true `
+          -o ./publish/OmniWeigh-Release
+
+    # 4. Zip package named with the extracted version
+    - name: Package Artifact
+      shell: pwsh
+      run: |
+        $ver = "${{ steps.get_version.outputs.PROJECT_VERSION }}"
+        Compress-Archive -Path ./publish/OmniWeigh-Release/* -DestinationPath ./OmniWeigh-v$ver-win-x64.zip
+
+    # 5. Upload ZIP to GitHub Actions Artifacts
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: OmniWeigh-v${{ steps.get_version.outputs.PROJECT_VERSION }}-win-x64
+        path: OmniWeigh-v${{ steps.get_version.outputs.PROJECT_VERSION }}-win-x64.zip
+        retention-days: 30
+
+    # 6. Dynamically create and push the Git Tag if it doesn't exist yet
+    - name: Create and Push Git Tag
+      shell: pwsh
+      run: |
+        $tag = "v${{ steps.get_version.outputs.PROJECT_VERSION }}"
+        
+        # Check if tag already exists in the repository
+        $tagExists = git tag -l $tag
+        if (-not $tagExists) {
+          write-host "Creating new tag: $tag"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git tag $tag
+          git push origin $tag
+        } else {
+          write-host "Tag $tag already exists. Skipping tag creation."
+        }
