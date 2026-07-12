@@ -1,7 +1,8 @@
 <Window x:Class="OmniWeigh.Desktop.Views.NewClientWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Nouveau client" Height="420" Width="620" WindowStartupLocation="CenterOwner" Background="{StaticResource ApplicationBackgroundBrush}">
+        Title="Nouveau client" Height="420" Width="620" Background="{StaticResource ApplicationBackgroundBrush}"
+        Style="{StaticResource DialogWindowStyle}" WindowStartupLocation="CenterScreen">
     <Grid Margin="12">
         <Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="6" Padding="16">
             <Grid>

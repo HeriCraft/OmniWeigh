@@ -12,7 +12,7 @@ namespace OmniWeigh.Desktop.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new OmniWeigh.Desktop.ViewModels.WeighingViewModel();
+            // DataContext is set by App DI bootstrap
 
             // Par défaut afficher la page Accueil (vide). Le contenu principal a été déplacé dans PriseDePoidsView.
             this.ContentRegion.Content = new AccueilView();
