@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using OmniWeigh.Desktop.Views.Pages;
 
 namespace OmniWeigh.Desktop.Views
 {
@@ -11,6 +13,44 @@ namespace OmniWeigh.Desktop.Views
         {
             InitializeComponent();
             this.DataContext = new OmniWeigh.Desktop.ViewModels.WeighingViewModel();
+
+            // Par défaut afficher la page Accueil (vide). Le contenu principal a été déplacé dans PriseDePoidsView.
+            this.ContentRegion.Content = new AccueilView();
+        }
+
+        private void BtnAccueil_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new AccueilView();
+        }
+
+        private void BtnPrisePoids_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new PriseDePoidsView();
+        }
+
+        private void BtnHistorique_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new HistoriqueView();
+        }
+
+        private void BtnRapports_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new RapportsView();
+        }
+
+        private void BtnClients_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new ClientsView();
+        }
+
+        private void BtnProduits_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new ProduitsView();
+        }
+
+        private void BtnParametres_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new ParametresView();
         }
     }
 

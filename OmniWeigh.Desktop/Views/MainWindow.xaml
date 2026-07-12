@@ -6,164 +6,9 @@
         xmlns:converters="clr-namespace:OmniWeigh.Desktop.Converters;assembly=OmniWeigh.Desktop"
         mc:Ignorable="d"
         Title="OmniWeigh" Height="840" Width="1150"
-        Background="#08101E" FontFamily="Segoe UI">
+        Background="{StaticResource ApplicationBackgroundBrush}" FontFamily="Segoe UI">
 
-    <Window.Resources>
-        <!--<converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />-->
-
-        <Style x:Key="MenuButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#A0B2C6"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="20,12"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                Padding="{TemplateBinding Padding}"
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#162A4A"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ActiveMenuButtonStyle" TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
-            <Setter Property="Background" Value="#12284C"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-        </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="border" 
-                                Background="#162A4A" 
-                                BorderBrush="#243F6C" 
-                                BorderThickness="1" 
-                                CornerRadius="4">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#3498DB"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="true">
-                                <Setter TargetName="border" Property="BorderBrush" Value="#3498DB"/>
-                                <Setter TargetName="border" Property="Background" Value="#1A355E"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="ComboBox">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBox">
-                        <Grid>
-                            <ToggleButton Name="ToggleButton" 
-                                          Grid.Column="2" 
-                                          Focusable="false"
-                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                                          ClickMode="Press">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border Name="TemplateBorder" 
-                                                Background="#162A4A" 
-                                                BorderBrush="#243F6C" 
-                                                BorderThickness="1" 
-                                                CornerRadius="4">
-                                            <Grid HorizontalAlignment="Right" Width="20">
-                                                <Path Name="Arrow" 
-                                                      Fill="#A0B2C6" 
-                                                      HorizontalAlignment="Center" 
-                                                      VerticalAlignment="Center" 
-                                                      Data="M 0 0 L 4 4 L 8 0 Z"/>
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="true">
-                                                <Setter TargetName="TemplateBorder" Property="BorderBrush" Value="#3498DB"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
-                            </ToggleButton>
-
-                            <ContentPresenter Name="ContentSite" 
-                                              IsHitTestVisible="False" 
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
-                                              Margin="10,3,30,3" 
-                                              VerticalAlignment="Center" 
-                                              HorizontalAlignment="Left">
-                            </ContentPresenter>
-
-                            <Popup Name="Popup" 
-                                   Placement="Bottom" 
-                                   IsOpen="{TemplateBinding IsDropDownOpen}" 
-                                   AllowsTransparency="True" 
-                                   Focusable="False" 
-                                   PopupAnimation="Slide">
-                                <Grid Name="DropDown" 
-                                      SnapsToDevicePixels="True" 
-                                      MinWidth="{TemplateBinding ActualWidth}" 
-                                      MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                                    <Border Name="DropDownBorder" 
-                                            Background="#0F1E36" 
-                                            BorderBrush="#243F6C" 
-                                            BorderThickness="1" 
-                                            CornerRadius="4"/>
-                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" />
-                                    </ScrollViewer>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#162A4A"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#12284C"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
+    <!-- Resources have been centralized into Themes/Colors.xaml and Themes/Styles.xaml -->
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -171,7 +16,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Background="#0A1424">
+        <Grid Grid.Column="0" Background="{StaticResource SidebarBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="90"/>
                 <RowDefinition Height="*"/>
@@ -180,212 +25,126 @@
 
             <StackPanel Grid.Row="0" VerticalAlignment="Center" Margin="20,0">
                 <TextBlock Text="⚖️ OmniWeigh" Foreground="White" FontSize="22" FontWeight="Bold"/>
-                <TextBlock Text="Pesage • Métrologie • Maintenance" Foreground="#5A6E85" FontSize="11" Margin="2,2,0,0"/>
+                <TextBlock Text="Pesage • Métrologie • Maintenance" Foreground="{StaticResource MutedSecondaryBrush}" FontSize="11" Margin="2,2,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Row="1" Margin="10,10,10,0">
-                <Button Content="🏠   Accueil" Style="{StaticResource ActiveMenuButtonStyle}"/>
-                <Button Content="🚛   Prise de poids" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="🕒   Historique" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="📊   Rapports" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="👥   Clients" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="📦   Produits" Style="{StaticResource MenuButtonStyle}"/>
-                <Button Content="⚙️   Paramètres" Style="{StaticResource MenuButtonStyle}"/>
+                <!-- Menu buttons: use SelectMenuCommand to update SelectedMenu in the ViewModel -->
+                <Button Content="🏠   Accueil" Tag="Accueil" Command="{Binding SelectMenuCommand}" CommandParameter="Accueil" Click="BtnAccueil_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Accueil">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="🚛   Prise de poids" Tag="PriseDePoids" Command="{Binding SelectMenuCommand}" CommandParameter="PriseDePoids" Click="BtnPrisePoids_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="PriseDePoids">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="🕒   Historique" Tag="Historique" Command="{Binding SelectMenuCommand}" CommandParameter="Historique" Click="BtnHistorique_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Historique">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="📊   Rapports" Tag="Rapports" Command="{Binding SelectMenuCommand}" CommandParameter="Rapports" Click="BtnRapports_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Rapports">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="👥   Clients" Tag="Clients" Command="{Binding SelectMenuCommand}" CommandParameter="Clients" Click="BtnClients_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Clients">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="📦   Produits" Tag="Produits" Command="{Binding SelectMenuCommand}" CommandParameter="Produits" Click="BtnProduits_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Produits">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="⚙️   Paramètres" Tag="Parametres" Command="{Binding SelectMenuCommand}" CommandParameter="Parametres" Click="BtnParametres_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Parametres">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
 
-            <Border Grid.Row="2" Margin="15" Padding="15" Background="#0D1B30" CornerRadius="6">
+            <Border Grid.Row="2" Margin="15" Padding="15" Background="{StaticResource PanelDarkerBrush}" CornerRadius="6">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Ellipse Width="8" Height="8" Fill="#2ECC71" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Ellipse Width="8" Height="8" Fill="{StaticResource AccentSuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBlock Text="Connexion" Foreground="White" FontWeight="SemiBold"/>
                     </StackPanel>
-                    <TextBlock Text="{Binding StringFormat='Balance : {0}', Path=BalanceModel}" Foreground="#6C829D" FontSize="12" Margin="0,2"/>
-                    <TextBlock Text="{Binding StringFormat='Port : {0}', Path=ComPort}" Foreground="#6C829D" FontSize="12" Margin="0,2"/>
-                    <TextBlock Text="{Binding StringFormat='Mode : {0}', Path=OperationMode}" Foreground="#6C829D" FontSize="12" Margin="0,8"/>
+                    <TextBlock Text="{Binding StringFormat='Balance : {0}', Path=BalanceModel}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,2"/>
+                    <TextBlock Text="{Binding StringFormat='Port : {0}', Path=ComPort}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,2"/>
+                    <TextBlock Text="{Binding StringFormat='Mode : {0}', Path=OperationMode}" Foreground="{StaticResource MutedTextBrush}" FontSize="12" Margin="0,8"/>
 
-                    <Separator Background="#1B2E4A" Margin="0,5"/>
+                    <Separator Background="{StaticResource SeparatorBrush}" Margin="0,5"/>
                     <TextBlock Text="{Binding OperatorName, StringFormat='Opérateur : {0}'}" Foreground="White" FontSize="12" FontWeight="SemiBold" Margin="0,5,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <Grid Grid.Column="1" Margin="20">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="280"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="35"/>
-            </Grid.RowDefinitions>
-
-            <Border Grid.Row="0" Background="#0F1E36" CornerRadius="8" Padding="20,15" Margin="0,0,0,15">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="PRISE DE POIDS" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
-                        <TextBlock Text="Type de document" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                        <RadioButton Content="Bon Livraison" IsChecked="{Binding IsDeliveryNote}" Foreground="White" Margin="0,3"/>
-                        <!--<RadioButton Content="Facture" IsChecked="{Binding IsDeliveryNote, Converter={StaticResource InverseBooleanConverter}}" Foreground="White" Margin="0,3"/>-->
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,12,0,0">
-                        <TextBlock Text="Date" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                        <DatePicker Height="32" BorderThickness="1" BorderBrush="#243F6C" Background="#162A4A" Foreground="Black"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="10,12,0,0">
-                        <TextBlock Text="Numéro" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding DocumentNumber}" Height="32"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Grid.Column="3" Margin="10,12,0,0">
-                        <TextBlock Text="Opérateur" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                        <ComboBox SelectedItem="{Binding OperatorName}" ItemsSource="{Binding Clients}" Height="32"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="1" Grid.Column="4" Margin="10,12,0,0">
-                        <TextBlock Text="Heure" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                        <TextBox Text="10:24:36" IsReadOnly="True" Height="32" Foreground="#3498DB" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="1" Background="#0F1E36" CornerRadius="8" Padding="25,15" Margin="0,0,0,15">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="POIDS ACTUEL" Foreground="#3498DB" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding CurrentWeight, StringFormat='{}{0:F2}'}" Foreground="White" FontSize="96" FontWeight="Bold" VerticalAlignment="Bottom"/>
-                            <TextBlock Text=" kg" Foreground="#3498DB" FontSize="48" FontWeight="Bold" VerticalAlignment="Bottom" Margin="10,0,0,15"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Ellipse Width="10" Height="10" Fill="#2ECC71" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBlock Text="{Binding StabilityStatus}" Foreground="#2ECC71" FontSize="14" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </StackPanel>
-
-                    <Border Grid.Column="1" Background="#162A4A" CornerRadius="8" Margin="10" Padding="15" BorderBrush="#243F6C" BorderThickness="1">
-                        <Grid>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="INDICATEUR PHYSIQUE" Foreground="#6C829D" FontSize="10" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding CurrentWeight, StringFormat='{}{0:F2} kg'}" Foreground="#2ECC71" FontSize="36" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10"/>
-                                <TextBlock Text="[ STABLE ]" Foreground="#2ECC71" FontSize="12" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="280"/>
-                    <ColumnDefinition Width="220"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Background="#0F1E36" CornerRadius="8" Padding="20,15" Margin="0,0,15,0">
-                    <StackPanel>
-                        <TextBlock Text="INFORMATIONS SUPPLÉMENTAIRES" Foreground="#3498DB" FontSize="12" FontWeight="Bold" Margin="0,0,0,15"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="42"/>
-                                <RowDefinition Height="42"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Text="Client" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding SelectedClient}" ItemsSource="{Binding Clients}" Height="32"/>
-
-                            <TextBlock Grid.Row="1" Text="Produit" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding SelectedProduct}" ItemsSource="{Binding Produits}" Height="32"/>
-
-                            <TextBlock Grid.Row="2" Text="Référence" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Reference}" Height="32"/>
-
-                            <TextBlock Grid.Row="3" Text="Véhicule" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                            <ComboBox Grid.Row="3" Grid.Column="1" SelectedItem="{Binding VehiclePlate}" ItemsSource="{Binding Vehicules}" Height="32"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1" Background="#0F1E36" CornerRadius="8" Padding="20,15" Margin="0,0,15,0">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="38"/>
-                            <RowDefinition Height="38"/>
-                            <RowDefinition Height="38"/>
-                            <RowDefinition Height="38"/>
-                            <RowDefinition Height="38"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Row="0" Text="Poids Brut" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PoidsBrut, StringFormat='{}{0:F2} kg'}" Foreground="#2ECC71" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                        <TextBlock Grid.Row="1" Text="Tare" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Tare, StringFormat='{}{0:F2} kg'}" Foreground="#F1C40F" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                        <TextBlock Grid.Row="2" Text="Poids Net" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PoidsNet, StringFormat='{}{0:F2} kg'}" Foreground="#3498DB" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                        <TextBlock Grid.Row="3" Text="Unité" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="3" Grid.Column="1" Text="kg" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
-
-                        <TextBlock Grid.Row="4" Text="État" Foreground="#A0B2C6" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding StabilityStatus}" Foreground="#2ECC71" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <Button Grid.Row="0" Content="💾 Enregistrer  &gt;" Command="{Binding EnregistrerCommand}" Background="#1A5276" Foreground="White" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
-                    <Button Grid.Row="1" Content="🖨️ Imprimer  &gt;" Command="{Binding ImprimerCommand}" Background="#1E8449" Foreground="White" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
-                    <Button Grid.Row="2" Content="🔄 Remise à zéro  &gt;" Command="{Binding RemiseAZeroCommand}" Background="#283747" Foreground="White" FontSize="14" FontWeight="SemiBold" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
-                </Grid>
-            </Grid>
-
-            <Grid Grid.Row="3" VerticalAlignment="Bottom" Margin="0,15,0,0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Ellipse Width="8" Height="8" Fill="#2ECC71" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="Balance connectée et opérationnelle" Foreground="#6C829D" FontSize="11" Margin="0,0,20,0"/>
-                    <TextBlock Text="v1.0.0" Foreground="#4A5A70" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <TextBlock Text="{Binding FrameCount, StringFormat='📈 Données reçues : {0} trames'}" Foreground="#6C829D" FontSize="11"/>
-                </StackPanel>
-            </Grid>
-        </Grid>
+        <ContentControl x:Name="ContentRegion" Grid.Column="1" Margin="20" />
     </Grid>
 </Window>

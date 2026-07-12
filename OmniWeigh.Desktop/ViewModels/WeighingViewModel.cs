@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text.Json;
 using System.ComponentModel;
+using System.Windows.Data;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using OmniWeigh.Core.Drivers;
-using OmniWeigh.Desktop.Drivers;
 
 namespace OmniWeigh.Desktop.ViewModels
 {
     public class WeighingViewModel : INotifyPropertyChanged
     {
         private readonly IBalanceDriver _balanceDriver;
+        private readonly OmniWeigh.Core.Services.IClientService _clientService;
 
         // États de l'IHM
         private double _currentWeight = 0.00;
@@ -29,6 +32,7 @@ namespace OmniWeigh.Desktop.ViewModels
         private string _selectedProduct = "SAVON 200g";
         private string _reference = "SAV200G-01";
         private string _vehiclePlate = "1234 TBA";
+        private string _selectedMenu = "Accueil";
 
         public WeighingViewModel()
         {
@@ -46,12 +50,52 @@ namespace OmniWeigh.Desktop.ViewModels
             RemiseAZeroCommand = new RelayCommand(_ => mock.SimulateNewWeight(0.0));
             EnregistrerCommand = new RelayCommand(_ => { /* Sauvegarde BDD */ });
             ImprimerCommand = new RelayCommand(_ => { /* Impression ticket */ });
+            SelectMenuCommand = new RelayCommand(p => SelectedMenu = p?.ToString() ?? string.Empty);
+            OpenNewClientCommand = new RelayCommand(_ => OpenNewClient());
+            ClearClientSearchCommand = new RelayCommand(_ => ClientSearchQuery = string.Empty);
+
+            // Charger la liste des clients depuis le service Core (synchronisé ici pour l'initialisation)
+            _clientService = new OmniWeigh.Core.Services.ClientService();
+            try
+            {
+                var clientDtos = System.Threading.Tasks.Task.Run(() => _clientService.GetAllAsync()).GetAwaiter().GetResult();
+                foreach (var c in clientDtos)
+                {
+                    ClientsList.Add(new ClientItem
+                    {
+                        Id = c.Id,
+                        Reference = c.Reference,
+                        Name = c.Name,
+                        Phone = c.Phone,
+                        Email = c.Email
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load clients from DB via service: {ex}");
+            }
+
+            // Setup vue filtrée pour la liste des clients
+            ClientsView = CollectionViewSource.GetDefaultView(ClientsList);
+            ClientsView.Filter = ClientFilter;
 
             // On démarre la connexion simulée immédiatement pour la maquette
             _ = _balanceDriver.ConnectedAsync("COM5", 9600);
 
             // On pose un poids initial de 2.00 kg
             mock.SimulateNewWeight(2.00);
+        }
+
+        private bool ClientFilter(object obj)
+        {
+            if (obj is not ClientItem client) return false;
+            if (string.IsNullOrWhiteSpace(ClientSearchQuery)) return true;
+            var q = ClientSearchQuery.Trim();
+            return (client.Name?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Reference?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Email?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Phone?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0;
         }
 
         // --- Propriétés de Binding Métrologique ---
@@ -110,24 +154,70 @@ namespace OmniWeigh.Desktop.ViewModels
         public ObservableCollection<string> Produits { get; set; } = new() { "SAVON 200g", "HUILE BRUTE", "MATIÈRE PREMIÈRE" };
         public ObservableCollection<string> Vehicules { get; set; } = new() { "1234 TBA", "5678 TAA", "9876 TEB" };
 
+        // Liste riche des clients affichée dans la page Clients (chargée depuis la base au démarrage)
+        public ObservableCollection<ClientItem> ClientsList { get; set; } = new();
+
         // --- Commandes ---
         public ICommand EnregistrerCommand { get; }
         public ICommand ImprimerCommand { get; }
         public ICommand RemiseAZeroCommand { get; }
+        public ICommand SelectMenuCommand { get; }
+        public ICommand OpenNewClientCommand { get; }
+        public ICommand ClearClientSearchCommand { get; }
+
+        // Vue filtrée exposée à la View
+        public ICollectionView ClientsView { get; private set; }
+
+        private string _clientSearchQuery = string.Empty;
+        public string ClientSearchQuery
+        {
+            get => _clientSearchQuery;
+            set
+            {
+                _clientSearchQuery = value;
+                OnPropertyChanged();
+                ClientsView?.Refresh();
+            }
+        }
+
+        public string SelectedMenu
+        {
+            get => _selectedMenu;
+            set { _selectedMenu = value; OnPropertyChanged(); }
+        }
+
+// Petit modèle de client pour l'affichage dans la grille (déclaré plus bas)
 
         private void OnWeightReceived(object? sender, double weightValue)
         {
-            // Marshalling vers le Thread UI de WPF
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            try
             {
-                // Détection de stabilité rudimentaire pour la maquette :
-                // Si la valeur est identique à la précédente, c'est stable.
-                IsStable = Math.Abs(weightValue - _lastWeight) < 0.01;
+                // Marshalling vers le Thread UI de WPF si possible, sinon exécute directement
+                var dispatcher = System.Windows.Application.Current?.Dispatcher ?? System.Windows.Threading.Dispatcher.CurrentDispatcher;
+                if (dispatcher != null && !dispatcher.CheckAccess())
+                {
+                    dispatcher.Invoke(() => UpdateWeightState(weightValue));
+                }
+                else
+                {
+                    UpdateWeightState(weightValue);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"OnWeightReceived error: {ex}");
+            }
+        }
 
-                CurrentWeight = weightValue;
-                FrameCount++;
-                _lastWeight = weightValue;
-            });
+        private void UpdateWeightState(double weightValue)
+        {
+            // Détection de stabilité rudimentaire pour la maquette :
+            // Si la valeur est identique à la précédente, c'est stable.
+            IsStable = Math.Abs(weightValue - _lastWeight) < 0.01;
+
+            CurrentWeight = weightValue;
+            FrameCount++;
+            _lastWeight = weightValue;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -135,6 +225,60 @@ namespace OmniWeigh.Desktop.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        private void OpenNewClient()
+        {
+            // Create VM and window
+            var vm = new NewClientViewModel();
+            var win = new OmniWeigh.Desktop.Views.NewClientWindow
+            {
+                DataContext = vm
+            };
+
+            var result = win.ShowDialog();
+            if (result == true && vm.IsSaved)
+            {
+                    try
+                    {
+                        var contact = new
+                        {
+                            phone = vm.Phone,
+                            email = vm.Email,
+                            address1 = vm.Address1,
+                            address2 = vm.Address2,
+                            city = vm.City,
+                            postalCode = vm.PostalCode,
+                            country = vm.Country
+                        };
+
+                        var dto = new OmniWeigh.Core.Services.DTOs.ClientDto
+                        {
+                            Name = vm.Name,
+                            ContactInfo = System.Text.Json.JsonSerializer.Serialize(contact),
+                            Phone = vm.Phone,
+                            Email = vm.Email
+                        };
+
+                        var saved = System.Threading.Tasks.Task.Run(() => _clientService.AddAsync(dto)).GetAwaiter().GetResult();
+
+                        var added = new ClientItem
+                        {
+                            Id = saved.Id,
+                            Reference = !string.IsNullOrWhiteSpace(saved.Reference) ? saved.Reference : $"C-{saved.Id:D5}",
+                            Name = saved.Name,
+                            Phone = saved.Phone,
+                            Email = saved.Email
+                        };
+                        ClientsList.Add(added);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to save client via service: {ex}");
+                    }
+            }
+        }
+
+        // Edit/Delete feature rolled back
     }
 
     // Un implémentation ultra-simple de ICommand pour éviter d'ajouter des dépendances MVVM externes
@@ -145,5 +289,16 @@ namespace OmniWeigh.Desktop.ViewModels
         public bool CanExecute(object? parameter) => true;
         public void Execute(object? parameter) => _execute(parameter);
         public event EventHandler? CanExecuteChanged;
+    }
+
+    // Petit modèle de client pour l'affichage dans la grille
+    public class ClientItem
+    {
+        // Database Id
+        public int Id { get; set; }
+        public string Reference { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }
