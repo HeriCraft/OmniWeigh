@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Data;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using OmniWeigh.Core.Drivers;
@@ -29,6 +30,7 @@ namespace OmniWeigh.Desktop.ViewModels
         private string _selectedProduct = "SAVON 200g";
         private string _reference = "SAV200G-01";
         private string _vehiclePlate = "1234 TBA";
+        private string _selectedMenu = "Accueil";
 
         public WeighingViewModel()
         {
@@ -46,12 +48,29 @@ namespace OmniWeigh.Desktop.ViewModels
             RemiseAZeroCommand = new RelayCommand(_ => mock.SimulateNewWeight(0.0));
             EnregistrerCommand = new RelayCommand(_ => { /* Sauvegarde BDD */ });
             ImprimerCommand = new RelayCommand(_ => { /* Impression ticket */ });
+            SelectMenuCommand = new RelayCommand(p => SelectedMenu = p?.ToString() ?? string.Empty);
+            ClearClientSearchCommand = new RelayCommand(_ => ClientSearchQuery = string.Empty);
+
+            // Setup vue filtrée pour la liste des clients
+            ClientsView = CollectionViewSource.GetDefaultView(ClientsList);
+            ClientsView.Filter = ClientFilter;
 
             // On démarre la connexion simulée immédiatement pour la maquette
             _ = _balanceDriver.ConnectedAsync("COM5", 9600);
 
             // On pose un poids initial de 2.00 kg
             mock.SimulateNewWeight(2.00);
+        }
+
+        private bool ClientFilter(object obj)
+        {
+            if (obj is not ClientItem client) return false;
+            if (string.IsNullOrWhiteSpace(ClientSearchQuery)) return true;
+            var q = ClientSearchQuery.Trim();
+            return (client.Name?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Reference?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Email?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0
+                || (client.Phone?.IndexOf(q, StringComparison.OrdinalIgnoreCase) ?? -1) >= 0;
         }
 
         // --- Propriétés de Binding Métrologique ---
@@ -110,10 +129,43 @@ namespace OmniWeigh.Desktop.ViewModels
         public ObservableCollection<string> Produits { get; set; } = new() { "SAVON 200g", "HUILE BRUTE", "MATIÈRE PREMIÈRE" };
         public ObservableCollection<string> Vehicules { get; set; } = new() { "1234 TBA", "5678 TAA", "9876 TEB" };
 
+        // Liste riche des clients affichée dans la page Clients
+        public ObservableCollection<ClientItem> ClientsList { get; set; } = new()
+        {
+            new ClientItem { Reference = "C-0001", Name = "MADAGASCAR S.A.", Phone = "+261 20 22 333 44", Email = "contact@madagascar.example" },
+            new ClientItem { Reference = "C-0002", Name = "SIMEX-CI", Phone = "+225 21 33 44 55", Email = "info@simex-ci.example" },
+            new ClientItem { Reference = "C-0003", Name = "LOGISTIQUE S.A.", Phone = "+33 1 23 45 67 89", Email = "sales@logistique.example" },
+        };
+
         // --- Commandes ---
         public ICommand EnregistrerCommand { get; }
         public ICommand ImprimerCommand { get; }
         public ICommand RemiseAZeroCommand { get; }
+        public ICommand SelectMenuCommand { get; }
+        public ICommand ClearClientSearchCommand { get; }
+
+        // Vue filtrée exposée à la View
+        public ICollectionView ClientsView { get; private set; }
+
+        private string _clientSearchQuery = string.Empty;
+        public string ClientSearchQuery
+        {
+            get => _clientSearchQuery;
+            set
+            {
+                _clientSearchQuery = value;
+                OnPropertyChanged();
+                ClientsView?.Refresh();
+            }
+        }
+
+        public string SelectedMenu
+        {
+            get => _selectedMenu;
+            set { _selectedMenu = value; OnPropertyChanged(); }
+        }
+
+// Petit modèle de client pour l'affichage dans la grille (déclaré plus bas)
 
         private void OnWeightReceived(object? sender, double weightValue)
         {
@@ -145,5 +197,14 @@ namespace OmniWeigh.Desktop.ViewModels
         public bool CanExecute(object? parameter) => true;
         public void Execute(object? parameter) => _execute(parameter);
         public event EventHandler? CanExecuteChanged;
+    }
+
+    // Petit modèle de client pour l'affichage dans la grille
+    public class ClientItem
+    {
+        public string Reference { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }
