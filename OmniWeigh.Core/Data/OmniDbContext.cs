@@ -19,6 +19,9 @@ namespace OmniWeigh.Core.Data
 
             string databasePath = Path.Combine(omniWeighFolderPath, "omniweigh.db");
 
+            // Trace the actual DB file used so it's easy to debug mismatches with external tools
+            System.Diagnostics.Debug.WriteLine($"OmniDbContext: using database at {databasePath}");
+
             // Connexion native à SQLite
             optionsBuilder.UseSqlite($"Data Source={databasePath}");
         }
