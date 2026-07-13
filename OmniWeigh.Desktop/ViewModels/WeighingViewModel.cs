@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using OmniWeigh.Core.Drivers;
+using System.Data;
 using OmniWeigh.Core.Services.DTOs;
 
 namespace OmniWeigh.Desktop.ViewModels
@@ -16,6 +17,7 @@ namespace OmniWeigh.Desktop.ViewModels
         private readonly IBalanceDriver _balanceDriver;
         private readonly OmniWeigh.Core.Services.IClientService _clientService;
         private readonly OmniWeigh.Core.Services.IProductService _productService;
+        private readonly OmniWeigh.Core.Services.IVehicleService _vehicleService;
         private readonly ILogger<WeighingViewModel> _logger;
 
         // States
@@ -35,11 +37,12 @@ namespace OmniWeigh.Desktop.ViewModels
         private string _vehiclePlate = "1234 TBA";
         private string _selectedMenu = "Accueil";
 
-        public WeighingViewModel(IBalanceDriver balanceDriver, OmniWeigh.Core.Services.IClientService clientService, OmniWeigh.Core.Services.IProductService productService, ILogger<WeighingViewModel> logger)
+        public WeighingViewModel(IBalanceDriver balanceDriver, OmniWeigh.Core.Services.IClientService clientService, OmniWeigh.Core.Services.IProductService productService, OmniWeigh.Core.Services.IVehicleService vehicleService, ILogger<WeighingViewModel> logger)
         {
             _balanceDriver = balanceDriver ?? throw new ArgumentNullException(nameof(balanceDriver));
             _clientService = clientService ?? throw new ArgumentNullException(nameof(clientService));
             _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+            _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             BalanceModel = $"{_balanceDriver.BrandName} {_balanceDriver.ModelName}";
@@ -56,6 +59,7 @@ namespace OmniWeigh.Desktop.ViewModels
             SelectMenuCommand = new RelayCommand(p => SelectedMenu = p?.ToString() ?? string.Empty);
             OpenNewClientCommand = new RelayCommand(_ => OpenNewClient());
             OpenNewProductCommand = new RelayCommand(_ => OpenNewProduct());
+            OpenNewVehicleCommand = new RelayCommand(_ => OpenNewVehicle());
             ClearClientSearchCommand = new RelayCommand(_ => ClientSearchQuery = string.Empty);
 
             // Collections and views
@@ -64,6 +68,13 @@ namespace OmniWeigh.Desktop.ViewModels
             ClientsView.Filter = ClientFilter;
 
             ProductsList = new ObservableCollection<ProductItem>();
+            VehiclesList = new ObservableCollection<VehicleItem>();
+            VehicleTypes = new ObservableCollection<string>(new[] { "Camion", "Crafter", "Sprinter" });
+
+            // Vehicle types shared collection (allows adding new types at runtime)
+            VehicleTypes = new ObservableCollection<string>(new[] { "Camion", "Crafter", "Sprinter" });
+
+            // Vehicles will be loaded during InitializeAsync from IVehicleService
 
         }
 
@@ -79,6 +90,7 @@ namespace OmniWeigh.Desktop.ViewModels
 
                 var clients = await _clientService.GetAllAsync().ConfigureAwait(false);
                 var products = await _productService.GetAllAsync().ConfigureAwait(false);
+                var vehicles = await _vehicleService.GetAllAsync().ConfigureAwait(false);
 
                 System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                 {
@@ -102,6 +114,18 @@ namespace OmniWeigh.Desktop.ViewModels
                             Reference = p.Reference,
                             Name = p.Name,
                             ImagePath = p.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", p.ImageFileName) : string.Empty
+                        });
+                    }
+
+                    foreach (var v in vehicles)
+                    {
+                        VehiclesList.Add(new VehicleItem
+                        {
+                            Id = v.Id,
+                            Registration = v.Registration,
+                            Type = v.Type,
+                            MaxLoad = v.MaxLoad ?? string.Empty,
+                            ImagePath = v.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", v.ImageFileName) : string.Empty
                         });
                     }
                 });
@@ -148,9 +172,11 @@ namespace OmniWeigh.Desktop.ViewModels
         public ObservableCollection<string> Clients { get; } = new() { "MADAGASCAR", "SIMEX-CI", "LOGISTIQUE S.A." };
         public ObservableCollection<string> Produits { get; } = new() { "SAVON 200g", "HUILE BRUTE", "MATIÈRE PREMIÈRE" };
         public ObservableCollection<string> Vehicules { get; } = new() { "1234 TBA", "5678 TAA", "9876 TEB" };
+        public ObservableCollection<string> VehicleTypes { get; }
 
         public ObservableCollection<ClientItem> ClientsList { get; }
         public ObservableCollection<ProductItem> ProductsList { get; }
+        public ObservableCollection<VehicleItem> VehiclesList { get; }
 
         public ICollectionView ClientsView { get; }
 
@@ -161,6 +187,7 @@ namespace OmniWeigh.Desktop.ViewModels
         public ICommand OpenNewClientCommand { get; }
         public ICommand OpenNewProductCommand { get; }
         public ICommand ClearClientSearchCommand { get; }
+        public ICommand OpenNewVehicleCommand { get; }
 
         private string _clientSearchQuery = string.Empty;
         public string ClientSearchQuery { get => _clientSearchQuery; set { _clientSearchQuery = value; OnPropertyChanged(); ClientsView?.Refresh(); } }
@@ -284,6 +311,57 @@ namespace OmniWeigh.Desktop.ViewModels
             }
         }
 
+        // Open dialog to create a new vehicle, persist and add to list
+        public void OpenNewVehicle()
+        {
+            var vm = new NewVehicleViewModel();
+            // seed dialog with existing types so user can add new type
+            foreach (var t in VehicleTypes)
+                vm.VehicleTypes.Add(t);
+
+            var win = new OmniWeigh.Desktop.Views.NewVehicleWindow
+            {
+                DataContext = vm
+            };
+
+            var result = win.ShowDialog();
+            if (result == true && vm.IsSaved)
+            {
+                try
+                {
+                    // If new type provided and not existing, add to shared collection
+                    if (!string.IsNullOrWhiteSpace(vm.SelectedType) && !VehicleTypes.Contains(vm.SelectedType))
+                    {
+                        VehicleTypes.Add(vm.SelectedType);
+                    }
+
+                    var dto = new OmniWeigh.Core.Services.DTOs.VehicleDto
+                    {
+                        Registration = vm.Registration,
+                        Type = vm.SelectedType,
+                        MaxLoad = string.IsNullOrWhiteSpace(vm.MaxLoad) ? null : vm.MaxLoad
+                    };
+
+                    var saved = Task.Run(() => _vehicleService.AddAsync(dto, vm.ImageSourcePath)).GetAwaiter().GetResult();
+
+                    VehiclesList.Add(new VehicleItem
+                    {
+                        Id = saved.Id,
+                        Registration = saved.Registration,
+                        Type = saved.Type,
+                        MaxLoad = saved.MaxLoad ?? string.Empty,
+                        ImagePath = saved.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", saved.ImageFileName) : string.Empty
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to save vehicle via service");
+                }
+            }
+        }
+
+        // Vehicle table creation and persistence handled by OmniWeigh.Core services
+
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -322,4 +400,13 @@ namespace OmniWeigh.Desktop.ViewModels
         public string Name { get; set; } = string.Empty;
         public string ImagePath { get; set; } = string.Empty;
     }
+    public class VehicleItem
+    {
+        public int Id { get; set; }
+        public string Registration { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string ImagePath { get; set; } = string.Empty;
+        public string MaxLoad { get; set; } = string.Empty;
+    }
 }
+

@@ -7,6 +7,7 @@ namespace OmniWeigh.Core.Data
     {
         public DbSet<Client> Clients { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Weighing> Weighings { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -42,6 +43,13 @@ namespace OmniWeigh.Core.Data
                 .WithMany(p => p.Weighings)
                 .HasForeignKey(w => w.ProductId)
                 .OnDelete(DeleteBehavior.Restrict); // Empêche de supprimer un produit s'il a des pesées associées
+
+            modelBuilder.Entity<Vehicle>(entity =>
+            {
+                entity.HasKey(v => v.Id);
+                entity.Property(v => v.Registration).IsRequired();
+                entity.Property(v => v.Type).IsRequired();
+            });
         }
     }
 }

@@ -29,54 +29,12 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1" Margin="10,10,10,0">
-                <!-- Menu buttons: use SelectMenuCommand to update SelectedMenu in the ViewModel -->
+                <!-- Menu buttons ordered ascending by label -->
                 <Button Content="🏠   Accueil" Tag="Accueil" Command="{Binding SelectMenuCommand}" CommandParameter="Accueil" Click="BtnAccueil_Click">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedMenu}" Value="Accueil">
-                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-                <Button Content="🚛   Prise de poids" Tag="PriseDePoids" Command="{Binding SelectMenuCommand}" CommandParameter="PriseDePoids" Click="BtnPrisePoids_Click">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedMenu}" Value="PriseDePoids">
-                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-                <Button Content="🕒   Historique" Tag="Historique" Command="{Binding SelectMenuCommand}" CommandParameter="Historique" Click="BtnHistorique_Click">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Historique">
-                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
-                                    <Setter Property="Foreground" Value="White" />
-                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-                <Button Content="📊   Rapports" Tag="Rapports" Command="{Binding SelectMenuCommand}" CommandParameter="Rapports" Click="BtnRapports_Click">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Rapports">
                                     <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
                                     <Setter Property="Foreground" Value="White" />
                                     <Setter Property="FontWeight" Value="SemiBold" />
@@ -100,11 +58,11 @@
                     </Button.Style>
                 </Button>
 
-                <Button Content="📦   Produits" Tag="Produits" Command="{Binding SelectMenuCommand}" CommandParameter="Produits" Click="BtnProduits_Click">
+                <Button Content="🕒   Historique" Tag="Historique" Command="{Binding SelectMenuCommand}" CommandParameter="Historique" Click="BtnHistorique_Click">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Produits">
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Historique">
                                     <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
                                     <Setter Property="Foreground" Value="White" />
                                     <Setter Property="FontWeight" Value="SemiBold" />
@@ -119,6 +77,62 @@
                         <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SelectedMenu}" Value="Parametres">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="🚛   Prise de poids" Tag="PriseDePoids" Command="{Binding SelectMenuCommand}" CommandParameter="PriseDePoids" Click="BtnPrisePoids_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="PriseDePoids">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="📦   Produits" Tag="Produits" Command="{Binding SelectMenuCommand}" CommandParameter="Produits" Click="BtnProduits_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Produits">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="📊   Rapports" Tag="Rapports" Command="{Binding SelectMenuCommand}" CommandParameter="Rapports" Click="BtnRapports_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Rapports">
+                                    <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Content="🚘   Véhicules" Tag="Vehicules" Command="{Binding SelectMenuCommand}" CommandParameter="Vehicules" Click="BtnVehicules_Click">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MenuButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedMenu}" Value="Vehicules">
                                     <Setter Property="Background" Value="{StaticResource ActiveMenuBackgroundBrush}" />
                                     <Setter Property="Foreground" Value="White" />
                                     <Setter Property="FontWeight" Value="SemiBold" />
@@ -147,4 +161,5 @@
 
         <ContentControl x:Name="ContentRegion" Grid.Column="1" Margin="20" />
     </Grid>
+    <!-- No-op edit: trigger file save -->
 </Window>

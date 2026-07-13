@@ -42,6 +42,10 @@ namespace OmniWeigh.Desktop.Views
         {
             this.ContentRegion.Content = new ClientsView();
         }
+        private void BtnVehicules_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentRegion.Content = new VehiculesView();
+        }
 
         private void BtnProduits_Click(object sender, RoutedEventArgs e)
         {
