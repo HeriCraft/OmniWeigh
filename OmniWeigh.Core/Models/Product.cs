@@ -6,7 +6,6 @@
         public string Name { get; set; } = string.Empty;
         // Barcode is used in the desktop app to store image filename
         public string Barcode { get; set; } = string.Empty;
-
         // Prix unitaire obligatoire (par défaut 0)
         public decimal UnitPrice { get; set; } = 0m;
 

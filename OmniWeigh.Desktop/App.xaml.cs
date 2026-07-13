@@ -39,6 +39,7 @@ namespace OmniWeigh.Desktop
             // Core services
             services.AddSingleton<IClientService, ClientService>();
             services.AddSingleton<IProductService, ProductService>();
+            services.AddSingleton<IVehicleService, VehicleService>();
             services.AddSingleton<IBalanceDriver, MockBalanceDriver>();
 
             // ViewModels
