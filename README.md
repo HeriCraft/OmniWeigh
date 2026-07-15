@@ -6,13 +6,75 @@ The software is engineered with a strict modular monolithic architecture (**Modu
 
 ---
 
-## 🚀 Functional Architecture & Key Features
+## 📖 Technical Documentation
 
-OmniWeigh is split into highly isolated functional modules, each managing a dedicated business domain of the industrial weighing ecosystem:
+For developers, integrators, and system administrators:
+* Read the comprehensive [Technical Documentation](TECHNICAL_DOCUMENTATION.md) for details on system architecture, component diagrams, database schemas, and sequence diagrams.
 
-* **Weighing Domain:** Handles real-time metrological acquisition from hardware scale indicators (RS232/USB) and tracks stable weight states automatically.
-* **Document & Logging Domain:** Manages local data persistence, historical logging, and the generation of standardized weight tickets and Delivery Notes (Bons de Livraison).
-* **Identity & Security Domain:** Enforces hardware-bound licensing verification tightly coupled with the unique fingerprint (Hardware ID - HWID) of the deployment workstation to prevent unauthorized execution or tampering.
+---
+
+## 🌟 Key Business Features (For Operators & Managers)
+
+OmniWeigh is designed to deliver high reliability, speed, and security on the factory floor, grain silos, or quarry weighing stations:
+
+* **🚫 Zero Manual Entry Errors:** By reading weight values automatically and directly from the weighing scale terminal (via RS-232 or USB), OmniWeigh eliminates costly human typos, omissions, and manual ticket alteration.
+* **🔒 Tamper & Fraud Prevention:** The software implements auto-stability detection (verifying when the weight of the goods on the scale has fully stabilized) and ties application licensing to the workstation's unique hardware fingerprint (HWID), preventing unauthorized tampering and data manipulation.
+* **🚛 Fast Vehicle & Cargo Management:** Quickly create and reference profiles for regular delivery vehicles, clients, and cargo products. Supports storing vehicle registrations and max load profiles to track which vehicle delivered the goods.
+* **📄 Instant Delivery Notes (Bons de Livraison):** Seamlessly generate and print standard Delivery Notes, weight tickets, and receipt logs immediately after a stable weight is acquired.
+* **💾 Internet-Independent Reliability:** Designed with an offline-first architecture using a secure, local database. Your weighing stations will continue to run at 100% capacity even during complete internet or network outages.
+* **🛠️ Lifetime Maintenance & SAV:** Includes dedicated customer support and priority troubleshooting to ensure maximum uptime, compliance with metrology guidelines, and future OS upgrades.
+
+---
+
+## 🔄 Key Business Workflows (Standard Operating Procedures)
+
+To keep industrial throughput fast and compliant, OmniWeigh supports three main day-to-day workflows:
+
+### 1. Article Weighing & Registration Flow
+*This is the main operational flow when goods/articles are weighed, recording which vehicle delivered them:*
+
+```mermaid
+flowchart TD
+    A([Start: Article is placed on scale]) --> B[Operator identifies Client, Product & Delivery Vehicle]
+    B --> C{Is vehicle registered?}
+    C -- No --> D[Quickly enroll new Vehicle] --> E
+    C -- Yes --> E[Wait for weight reading to stabilize]
+    E --> F{Is weight stable?}
+    F -- No --> E
+    F -- Yes --> G[Lock & capture Gross Weight]
+    G --> H[Deduct packaging/container Tare]
+    H --> I[System calculates Net Weight of article]
+    I --> J[Save transaction & print Delivery Note]
+    J --> K([End: Article removed from scale])
+```
+
+1. **Positioning:** The article (e.g., soap raw material, oil drums, or pallets of goods) is placed on the scale.
+2. **Identification:** The operator selects the **Client** (owner of the goods), the **Product** (article type), and the **Vehicle** (the delivery vehicle that transported the goods) from the lists.
+3. **Real-time Stable Capture:** The system streams the weight from the scale terminal. To prevent errors and ensure metrological integrity, the operator captures the weight once it stabilizes (indicated by the **Stable** badge).
+4. **Tare Deduction:** The operator enters or selects the tare weight of the packaging (e.g., the pallet or barrel tare). The system automatically subtracts the tare from the gross weight to calculate the true **Net Weight** of the article.
+5. **Validation & Ticket Printing:** The operator clicks *Enregistrer* to save the weighing transaction and prints the official ticket or **Delivery Note (Bon de Livraison)**.
+
+### 2. Quick Entity Enrollment Workflow
+*Used when a new customer, product type, or vehicle needs to be added to the registry on-the-fly:*
+1. **Direct Access:** The operator clicks the shortcut buttons (`👥 Clients`, `📦 Produits`, or `🚛 Véhicules`) directly from the main interface.
+2. **Form Input & Image Attachment:** The operator inputs contact details or dimensions. They can attach an image (e.g., product photo, vehicle registration profile picture) for visual auditing.
+3. **Automatic Code Generation:** The database automatically generates a unique identifier (such as `C-00003` for clients, `P-00004` for products) to maintain neat indexing.
+
+### 3. Log Auditing & Re-printing Workflow
+*Used by managers to investigate past weights and resolve disputes:*
+1. **Search & Filter:** The supervisor navigates to the **Historique** screen and searches by date range, vehicle registration plate, or client reference.
+2. **Verify Weighing Metrics:** Displays all metrics (Gross, Tare, Net) along with the operator's name and precise timestamp.
+3. **Ticket Duplication:** The manager can select any historical entry and reprint the official ticket on demand.
+
+---
+
+## 🚀 Functional Architecture & Technical Modules
+
+For a deeper dive into code implementation, refer to the [Technical Documentation](TECHNICAL_DOCUMENTATION.md).
+
+* **Weighing Domain:** Real-time metrological acquisition from hardware scale indicators (RS232/USB) and automated stable state monitoring.
+* **Document & Logging Domain:** Local SQLite data persistence, historical logging, and standardized ticket generation.
+* **Identity & Security Domain:** Hardware-bound licensing verification (HWID fingerprinting) to prevent unauthorized distribution and execution.
 
 ---
 
@@ -22,6 +84,7 @@ OmniWeigh is split into highly isolated functional modules, each managing a dedi
 * **Presentation Layer:** Windows Presentation Foundation (WPF) / MVVM Pattern
 * **Architecture Style:** Modulith (Modular Monolith)
 * **Hardware Interface:** Serial Port Protocols (RS232 / USB)
+* **Local Database:** EF Core with SQLite
 
 ---
 
