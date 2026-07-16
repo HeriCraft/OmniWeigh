@@ -6,10 +6,16 @@ The software is engineered with a strict modular monolithic architecture (**Modu
 
 ---
 
-## 📖 Technical Documentation
+## 📖 Documentations
 
-For developers, integrators, and system administrators:
-* Read the comprehensive [Technical Documentation](TECHNICAL_DOCUMENTATION.md) for details on system architecture, component diagrams, database schemas, and sequence diagrams.
+**OmniWeigh** is thoroughly documented to serve both business and technical audiences. All official documentation is stored in the `documentations/` folder.
+
+### Documentation Fonctionnelle & Métier (Stakeholders & Users)
+* [Documentation Prise de Poids](documentations/PriseDePoids_Documentation.md) : Guide détaillant le workflow "Série de Pesée sans pause" (No-Pause Weighing Session), la traçabilité des identifiants (BL, PP), et les spécifications d'impression (A4 vs Thermique 80x80).
+
+### Documentation Technique & Architecture (Engineering)
+* [Documentation Technique Globale](documentations/TECHNICAL_DOCUMENTATION.md) : Architectural overview, component diagrams, database schemas, and technical implementation details.
+* [Spécifications Techniques Prise de Poids](documentations/PriseDePoids_Documentation.md#2-documentation-technique--architecture-ingénierie) : Flowcharts Mermaid.js d'initialisation et d'enregistrement, dictionnaire de données et modèles SIMEX-ci (`history` table).
 
 ---
 
@@ -70,7 +76,7 @@ flowchart TD
 
 ## 🚀 Functional Architecture & Technical Modules
 
-For a deeper dive into code implementation, refer to the [Technical Documentation](TECHNICAL_DOCUMENTATION.md).
+For a deeper dive into code implementation, refer to the [Technical Documentation](documentations/TECHNICAL_DOCUMENTATION.md).
 
 * **Weighing Domain:** Real-time metrological acquisition from hardware scale indicators (RS232/USB) and automated stable state monitoring.
 * **Document & Logging Domain:** Local SQLite data persistence, historical logging, and standardized ticket generation.

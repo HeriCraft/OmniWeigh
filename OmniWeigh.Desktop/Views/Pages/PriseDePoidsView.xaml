@@ -4,15 +4,64 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900">
+             d:DesignHeight="650" d:DesignWidth="950">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <!-- Dropdown item template for Products -->
+        <DataTemplate x:Key="ProductItemTemplate">
+            <StackPanel Orientation="Horizontal">
+                <!-- Image Container with Fallback -->
+                <Grid Height="30" MinWidth="30" Margin="0,0,10,0">
+                    <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedTextBrush}" x:Name="FallbackIcon"/>
+                    <Image Source="{Binding ImagePath}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
+                </Grid>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding ImagePath}" Value="{x:Null}">
+                    <Setter TargetName="ItemImage" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="FallbackIcon" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ImagePath}" Value="">
+                    <Setter TargetName="ItemImage" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="FallbackIcon" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+        
+        <!-- Dropdown item template for Vehicles -->
+        <DataTemplate x:Key="VehicleItemTemplate">
+            <StackPanel Orientation="Horizontal">
+                <!-- Image Container with Fallback -->
+                <Grid Height="30" MinWidth="30" Margin="0,0,10,0">
+                    <TextBlock Text="🚛" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedTextBrush}" x:Name="FallbackIcon"/>
+                    <Image Source="{Binding ImagePath}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
+                </Grid>
+                <TextBlock Text="{Binding Registration}" VerticalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
+            </StackPanel>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding ImagePath}" Value="{x:Null}">
+                    <Setter TargetName="ItemImage" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="FallbackIcon" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ImagePath}" Value="">
+                    <Setter TargetName="ItemImage" Property="Visibility" Value="Collapsed"/>
+                    <Setter TargetName="FallbackIcon" Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="280"/>
+            <RowDefinition Height="240"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="35"/>
         </Grid.RowDefinitions>
 
+        <!-- TOP BAR: SESSION INFO -->
         <Border Grid.Row="0" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20,15" Margin="0,0,0,15">
             <Grid>
                 <Grid.RowDefinitions>
@@ -20,52 +69,56 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="200"/>
                     <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="160"/>
                     <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="PRISE DE POIDS" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
-                    <TextBlock Text="Type de document" Foreground="{StaticResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
-                    <RadioButton Content="Bon Livraison" IsChecked="{Binding IsDeliveryNote}" Foreground="White" Margin="0,3"/>
-                    <!--<RadioButton Content="Facture" IsChecked="{Binding IsDeliveryNote, Converter={StaticResource InverseBooleanConverter}}" Foreground="White" Margin="0,3"/>-->
+                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔴 SESSION EN COURS" Foreground="{StaticResource AccentWarningBrush}" FontSize="14" FontWeight="Bold"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,12,0,0">
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,10,0">
+                    <TextBlock Text="Type de document" Foreground="{StaticResource MutedTextBrush}" FontSize="11" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding DocumentTypes}" SelectedItem="{Binding DocumentType}" Height="32"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,15,10,0">
                     <TextBlock Text="Date" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
                     <DatePicker Height="32" BorderThickness="1" BorderBrush="{StaticResource FieldBorderBrush}" Background="{StaticResource FieldBackgroundBrush}" Foreground="Black"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="2" Margin="10,12,0,0">
+                <StackPanel Grid.Row="1" Grid.Column="2" Margin="10,15,10,0">
                     <TextBlock Text="Numéro" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding DocumentNumber}" Height="32"/>
+                    <TextBox Text="{Binding DocumentNumber}" IsReadOnly="True" Height="32" Foreground="{StaticResource MutedSecondaryBrush}" FontWeight="Bold"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="3" Margin="10,12,0,0">
+                <StackPanel Grid.Row="1" Grid.Column="3" Margin="10,15,10,0">
                     <TextBlock Text="Opérateur" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                    <ComboBox SelectedItem="{Binding OperatorName}" ItemsSource="{Binding Clients}" Height="32"/>
+                    <TextBox Text="{Binding OperatorName}" Height="32"/>
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="4" Margin="10,12,0,0">
+                <StackPanel Grid.Row="1" Grid.Column="4" Margin="10,15,0,0">
                     <TextBlock Text="Heure" Foreground="#6C829D" FontSize="11" Margin="0,0,0,5"/>
-                    <TextBox Text="10:24:36" IsReadOnly="True" Height="32" Foreground="#3498DB" FontWeight="SemiBold"/>
+                    <Border Background="#1A2A44" CornerRadius="4" Height="32">
+                        <TextBlock Text="{Binding CurrentTime, Mode=OneWay}" Foreground="#00FFCC" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas"/>
+                    </Border>
                 </StackPanel>
             </Grid>
         </Border>
 
+        <!-- MAIN WEIGHT DISPLAY -->
         <Border Grid.Row="1" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="25,15" Margin="0,0,0,15">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="320"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="POIDS ACTUEL" Foreground="{StaticResource AccentInfoBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="POIDS ACTUEL (BRUT)" Foreground="{StaticResource AccentInfoBrush}" FontSize="13" FontWeight="Bold" Margin="0,0,0,10"/>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding CurrentWeight, StringFormat='{}{0:F2}'}" Foreground="White" FontSize="96" FontWeight="Bold" VerticalAlignment="Bottom"/>
                         <TextBlock Text=" kg" Foreground="{StaticResource AccentInfoBrush}" FontSize="48" FontWeight="Bold" VerticalAlignment="Bottom" Margin="10,0,0,15"/>
@@ -78,27 +131,29 @@
                 </StackPanel>
 
                 <Border Grid.Column="1" Background="{StaticResource FieldBackgroundBrush}" CornerRadius="8" Margin="10" Padding="15" BorderBrush="{StaticResource FieldBorderBrush}" BorderThickness="1">
-                    <Grid>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="INDICATEUR PHYSIQUE" Foreground="{StaticResource MutedTextBrush}" FontSize="10" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding CurrentWeight, StringFormat='{}{0:F2} kg'}" Foreground="{StaticResource AccentSuccessBrush}" FontSize="36" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10"/>
-                            <TextBlock Text="[ STABLE ]" Foreground="{StaticResource AccentSuccessBrush}" FontSize="12" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="RÉFÉRENCE PESÉE" Foreground="{StaticResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding WeighingReference}" Foreground="White" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                        
+                        <TextBlock Text="ENTRÉES ENREGISTRÉES" Foreground="{StaticResource MutedTextBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                        <TextBlock Text="{Binding SessionEntries.Count}" Foreground="{StaticResource AccentWarningBrush}" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Border>
 
+        <!-- BOTTOM DETAILS & ACTIONS -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
 
+            <!-- INFOS -->
             <Border Grid.Column="0" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20,15" Margin="0,0,15,0">
                 <StackPanel>
-                    <TextBlock Text="INFORMATIONS SUPPLÉMENTAIRES" Foreground="#3498DB" FontSize="12" FontWeight="Bold" Margin="0,0,0,15"/>
+                    <TextBlock Text="DÉTAILS DE LA PESÉE" Foreground="#3498DB" FontSize="12" FontWeight="Bold" Margin="0,0,0,15"/>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -106,27 +161,36 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="42"/>
-                            <RowDefinition Height="42"/>
-                            <RowDefinition Height="42"/>
-                            <RowDefinition Height="42"/>
+                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Text="Client" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding SelectedClient}" ItemsSource="{Binding Clients}" Height="32"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding SelectedClientItem}" ItemsSource="{Binding ClientsList}" DisplayMemberPath="Name" Height="35"/>
 
                         <TextBlock Grid.Row="1" Text="Produit" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding SelectedProduct}" ItemsSource="{Binding Produits}" Height="32"/>
+                        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding SelectedProductItem}" ItemsSource="{Binding ProductsList}" ItemTemplate="{StaticResource ProductItemTemplate}" Height="35"/>
 
-                        <TextBlock Grid.Row="2" Text="Référence" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Reference}" Height="32"/>
+                        <TextBlock Grid.Row="2" Text="Quantité" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Quantity}" Height="35" Foreground="White" Background="{StaticResource FieldBackgroundBrush}" BorderBrush="{StaticResource FieldBorderBrush}"/>
 
-                        <TextBlock Grid.Row="3" Text="Véhicule" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Row="3" Grid.Column="1" SelectedItem="{Binding VehiclePlate}" ItemsSource="{Binding Vehicules}" Height="32"/>
+                        <TextBlock Grid.Row="3" Text="Unité" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="3" Grid.Column="1" SelectedItem="{Binding SelectedUnit}" ItemsSource="{Binding Units}" Height="35"/>
+
+                        <TextBlock Grid.Row="4" Text="Véhicule" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="4" Grid.Column="1" SelectedItem="{Binding SelectedVehicleItem}" ItemsSource="{Binding VehiclesList}" ItemTemplate="{StaticResource VehicleItemTemplate}" Height="35"/>
+                        
+                        <TextBlock Grid.Row="5" Text="Observation" Foreground="{StaticResource MenuForegroundBrush}" Margin="0,10,0,0"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Observation}" Height="50" Margin="0,10,0,0" Foreground="White" Background="{StaticResource FieldBackgroundBrush}" BorderBrush="{StaticResource FieldBorderBrush}" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"/>
                     </Grid>
                 </StackPanel>
             </Border>
 
+            <!-- STATS -->
             <Border Grid.Column="1" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20,15" Margin="0,0,15,0">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -142,40 +206,41 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Row="0" Text="Poids Brut" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PoidsBrut, StringFormat='{}{0:F2} kg'}" Foreground="{StaticResource AccentSuccessBrush}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PoidsBrut, StringFormat='{}{0:F2}'}" Foreground="{StaticResource AccentSuccessBrush}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
 
                     <TextBlock Grid.Row="1" Text="Tare" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Tare, StringFormat='{}{0:F2} kg'}" Foreground="{StaticResource AccentWarningBrush}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Tare, StringFormat='{}{0:F2}'}" Foreground="{StaticResource AccentWarningBrush}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
 
                     <TextBlock Grid.Row="2" Text="Poids Net" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PoidsNet, StringFormat='{}{0:F2} kg'}" Foreground="{StaticResource AccentInfoBrush}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding PoidsNet, StringFormat='{}{0:F2}'}" Foreground="{StaticResource AccentInfoBrush}" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="3" Text="Unité" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="kg" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Text="Unité Sélectionnée" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedUnit}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="4" Text="État" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding StabilityStatus}" Foreground="{StaticResource AccentSuccessBrush}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Text="Stabilité" Foreground="{StaticResource MenuForegroundBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding StabilityStatus}" Foreground="{StaticResource AccentSuccessBrush}" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 
+            <!-- ACTIONS -->
             <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="60"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Button Grid.Row="0" Content="💾 Enregistrer  &gt;" Command="{Binding EnregistrerCommand}" Background="{StaticResource SaveButtonBrush}" Foreground="White" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
-                <Button Grid.Row="1" Content="🖨️ Imprimer  &gt;" Command="{Binding ImprimerCommand}" Background="{StaticResource PrintButtonBrush}" Foreground="White" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
-                <Button Grid.Row="2" Content="🔄 Remise à zéro  &gt;" Command="{Binding RemiseAZeroCommand}" Background="{StaticResource ResetButtonBrush}" Foreground="White" FontSize="14" FontWeight="SemiBold" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+                <Button Grid.Row="0" Content="💾 Enregistrer la ligne  &gt;" Command="{Binding EnregistrerCommand}" Background="{StaticResource SaveButtonBrush}" Foreground="White" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+                
+                <Button Grid.Row="1" Content="✅ Terminer la série" Command="{Binding TerminerSerieCommand}" Visibility="{Binding HasSessionEntries, Converter={StaticResource BoolToVis}}" Background="{StaticResource AccentWarningBrush}" Foreground="White" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
             </Grid>
         </Grid>
 
+        <!-- FOOTER -->
         <Grid Grid.Row="3" VerticalAlignment="Bottom" Margin="0,15,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Ellipse Width="8" Height="8" Fill="{StaticResource AccentSuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock Text="Balance connectée et opérationnelle" Foreground="{StaticResource MutedTextBrush}" FontSize="11" Margin="0,0,20,0"/>
-                <TextBlock Text="v1.0.0" Foreground="{StaticResource VersionTextBrush}" FontSize="11" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

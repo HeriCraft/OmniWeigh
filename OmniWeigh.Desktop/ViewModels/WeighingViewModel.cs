@@ -30,12 +30,26 @@ namespace OmniWeigh.Desktop.ViewModels
         private double _lastWeight = -1.0;
 
         // Document info
-        private bool _isDeliveryNote = true;
-        private string _documentNumber = "BL-000125";
+        private string _documentType = "Bon de livraison";
+        private string _documentNumber = string.Empty;
         private string _operatorName = "ANDRIAM.";
         private string _reference = string.Empty;
-        private string _vehiclePlate = "1234 TBA";
+        private string _vehiclePlate = string.Empty;
         private string _selectedMenu = "Accueil";
+
+        // Real-time & Session info
+        private string _currentTime = DateTime.Now.ToString("HH:mm:ss");
+        private System.Windows.Threading.DispatcherTimer _timer;
+        private Guid _currentSessionId = Guid.Empty;
+        private bool _isSessionActive = false;
+        private string _weighingReference = string.Empty;
+        private string _selectedUnit = "PCS";
+        private double _quantity = 1.0;
+        private string _observation = string.Empty;
+
+        public OmniWeigh.Core.Models.Company? CurrentCompany { get; private set; }
+
+        public ObservableCollection<OmniWeigh.Core.Models.WeighingHistory> SessionEntries { get; } = new();
 
         public WeighingViewModel(IBalanceDriver balanceDriver, OmniWeigh.Core.Services.IClientService clientService, OmniWeigh.Core.Services.IProductService productService, OmniWeigh.Core.Services.IVehicleService vehicleService, ILogger<WeighingViewModel> logger)
         {
@@ -47,6 +61,9 @@ namespace OmniWeigh.Desktop.ViewModels
 
             BalanceModel = $"{_balanceDriver.BrandName} {_balanceDriver.ModelName}";
 
+            // Initialize Document Number
+            GenerateDocumentNumber();
+
             // Commands
             RemiseAZeroCommand = new RelayCommand(_ =>
             {
@@ -54,8 +71,9 @@ namespace OmniWeigh.Desktop.ViewModels
                     mock.SimulateNewWeight(0.0);
             });
 
-            EnregistrerCommand = new RelayCommand(_ => { /* persist weighing via Core service - implement when needed */ });
-            ImprimerCommand = new RelayCommand(_ => { /* print ticket - implement */ });
+            EnregistrerCommand = new RelayCommand(_ => SaveCurrentWeighingAsync());
+            TerminerSerieCommand = new RelayCommand(_ => PromptCompleteSeries());
+            ImprimerCommand = new RelayCommand(_ => { /* Now obsolete but kept for compat */ });
             SelectMenuCommand = new RelayCommand(p => SelectedMenu = p?.ToString() ?? string.Empty);
             OpenNewClientCommand = new RelayCommand(_ => OpenNewClient());
             OpenNewProductCommand = new RelayCommand(_ => OpenNewProduct());
@@ -74,8 +92,13 @@ namespace OmniWeigh.Desktop.ViewModels
             // Vehicle types shared collection (allows adding new types at runtime)
             VehicleTypes = new ObservableCollection<string>(new[] { "Camion", "Crafter", "Sprinter" });
 
-            // Vehicles will be loaded during InitializeAsync from IVehicleService
-
+            // Setup Real-time clock
+            _timer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _timer.Tick += (s, e) => CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+            _timer.Start();
         }
 
         public async Task InitializeAsync()
@@ -91,6 +114,27 @@ namespace OmniWeigh.Desktop.ViewModels
                 var clients = await _clientService.GetAllAsync().ConfigureAwait(false);
                 var products = await _productService.GetAllAsync().ConfigureAwait(false);
                 var vehicles = await _vehicleService.GetAllAsync().ConfigureAwait(false);
+
+                // Initialize Company
+                using (var db = new OmniWeigh.Core.Data.OmniDbContext())
+                {
+                    var company = db.Companies.FirstOrDefault();
+                    if (company == null)
+                    {
+                        company = new OmniWeigh.Core.Models.Company
+                        {
+                            Name = "SIMEX-ci",
+                            Slogan = "Pesage • Métrologie • Maintenance",
+                            Address1 = "Lot 10",
+                            Address2 = "Antananarivo - Madagascar",
+                            Email = "simexci@gmail.com",
+                            Phone = ""
+                        };
+                        db.Companies.Add(company);
+                        db.SaveChanges();
+                    }
+                    CurrentCompany = company;
+                }
 
                 System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                 {
@@ -162,10 +206,31 @@ namespace OmniWeigh.Desktop.ViewModels
         public string OperationMode { get => _operationMode; set { _operationMode = value; OnPropertyChanged(); } }
         public int FrameCount { get => _frameCount; private set { _frameCount = value; OnPropertyChanged(); } }
 
+        public string CurrentTime { get => _currentTime; private set { _currentTime = value; OnPropertyChanged(); } }
+
         public string DocumentNumber { get => _documentNumber; set { _documentNumber = value; OnPropertyChanged(); } }
         public string OperatorName { get => _operatorName; set { _operatorName = value; OnPropertyChanged(); } }
         public string Reference { get => _reference; set { _reference = value; OnPropertyChanged(); } }
-        public bool IsDeliveryNote { get => _isDeliveryNote; set { _isDeliveryNote = value; OnPropertyChanged(); } }
+        
+        public string DocumentType 
+        { 
+            get => _documentType; 
+            set 
+            { 
+                _documentType = value; 
+                OnPropertyChanged();
+                GenerateDocumentNumber();
+            } 
+        }
+
+        public string WeighingReference { get => _weighingReference; set { _weighingReference = value; OnPropertyChanged(); } }
+        public string SelectedUnit { get => _selectedUnit; set { _selectedUnit = value; OnPropertyChanged(); } }
+        
+        public double Quantity { get => _quantity; set { _quantity = value; OnPropertyChanged(); } }
+        public string Observation { get => _observation; set { _observation = value; OnPropertyChanged(); } }
+        
+        public bool IsSessionActive { get => _isSessionActive; set { _isSessionActive = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasSessionEntries)); } }
+        public bool HasSessionEntries => SessionEntries.Count > 0;
 
         public string VehiclePlate { get => _vehiclePlate; set { _vehiclePlate = value; OnPropertyChanged(); if (_balanceDriver is OmniWeigh.Core.Drivers.MockBalanceDriver mock) { double weight = value == "1234 TBA" ? 2.00 : 1450.50; mock.SimulateNewWeight(weight); } } }
 
@@ -173,6 +238,9 @@ namespace OmniWeigh.Desktop.ViewModels
         public ObservableCollection<string> Produits { get; } = new() { "SAVON 200g", "HUILE BRUTE", "MATIÈRE PREMIÈRE" };
         public ObservableCollection<string> Vehicules { get; } = new() { "1234 TBA", "5678 TAA", "9876 TEB" };
         public ObservableCollection<string> VehicleTypes { get; }
+        
+        public ObservableCollection<string> DocumentTypes { get; } = new() { "Bon de livraison", "Bon de sortie", "Bon de réception", "Bon de retour", "Facture" };
+        public ObservableCollection<string> Units { get; } = new() { "KG", "PCS" };
 
         public ObservableCollection<ClientItem> ClientsList { get; }
         public ObservableCollection<ProductItem> ProductsList { get; }
@@ -181,6 +249,7 @@ namespace OmniWeigh.Desktop.ViewModels
         public ICollectionView ClientsView { get; }
 
         public ICommand EnregistrerCommand { get; }
+        public ICommand TerminerSerieCommand { get; }
         public ICommand ImprimerCommand { get; }
         public ICommand RemiseAZeroCommand { get; }
         public ICommand SelectMenuCommand { get; }
@@ -193,6 +262,99 @@ namespace OmniWeigh.Desktop.ViewModels
         public string ClientSearchQuery { get => _clientSearchQuery; set { _clientSearchQuery = value; OnPropertyChanged(); ClientsView?.Refresh(); } }
 
         public string SelectedMenu { get => _selectedMenu; set { _selectedMenu = value; OnPropertyChanged(); } }
+
+        // Selected items for persistence
+        private ClientItem? _selectedClientItem;
+        public ClientItem? SelectedClientItem { get => _selectedClientItem; set { _selectedClientItem = value; OnPropertyChanged(); } }
+        
+        private ProductItem? _selectedProductItem;
+        public ProductItem? SelectedProductItem { get => _selectedProductItem; set { _selectedProductItem = value; OnPropertyChanged(); } }
+
+        private VehicleItem? _selectedVehicleItem;
+        public VehicleItem? SelectedVehicleItem { get => _selectedVehicleItem; set { _selectedVehicleItem = value; OnPropertyChanged(); VehiclePlate = value?.Registration ?? string.Empty; } }
+
+        private void GenerateDocumentNumber()
+        {
+            string prefix = DocumentType switch
+            {
+                "Bon de livraison" => "BL",
+                "Bon de sortie" => "BS",
+                "Bon de réception" => "BR",
+                "Bon de retour" => "BT",
+                "Facture" => "FA",
+                _ => "DOC"
+            };
+            DocumentNumber = $"{prefix}-{DateTime.Now:yyyyMMddHHmm}";
+        }
+
+        private async void SaveCurrentWeighingAsync()
+        {
+            if (!_isSessionActive)
+            {
+                var dialog = new OmniWeigh.Desktop.Views.Dialogs.PreSessionDialog();
+                if (dialog.ShowDialog() != true)
+                {
+                    return;
+                }
+                
+                _currentSessionId = Guid.NewGuid();
+                IsSessionActive = true;
+            }
+
+            WeighingReference = $"PP-{DateTime.Now:yyMMddHHmmss}";
+
+            var entry = new OmniWeigh.Core.Models.WeighingHistory
+            {
+                SessionId = _currentSessionId,
+                WeighingReference = this.WeighingReference,
+                Unit = Enum.TryParse<OmniWeigh.Core.Models.UnitType>(this.SelectedUnit, out var u) ? u : OmniWeigh.Core.Models.UnitType.PCS,
+                Quantity = this.Quantity,
+                Observation = this.Observation,
+                GrossWeight = this.PoidsBrut,
+                Tare = this.Tare,
+                Timestamp = DateTime.Now,
+                ProductId = SelectedProductItem?.Id ?? 1,
+                Product = SelectedProductItem != null ? new OmniWeigh.Core.Models.Product { Id = SelectedProductItem.Id, Name = SelectedProductItem.Name } : null!
+            };
+
+            // Assuming DbContext DI is tricky from VM without service, we will just add to list for now.
+            // In a real scenario we use _weighingService.
+            SessionEntries.Add(entry);
+            OnPropertyChanged(nameof(HasSessionEntries));
+        }
+
+        private void PromptCompleteSeries()
+        {
+            var dialog = new OmniWeigh.Desktop.Views.Dialogs.CompletionActionDialog();
+            if (dialog.ShowDialog() == true)
+            {
+                var doc = OmniWeigh.Desktop.Services.DocumentGenerator.GenerateDocument(
+                    this.DocumentType,
+                    this.DocumentNumber,
+                    this.OperatorName,
+                    DateTime.Now,
+                    this.SelectedClientItem,
+                    this.SelectedVehicleItem,
+                    this.SessionEntries,
+                    this.CurrentCompany,
+                    dialog.IsThermalFormat);
+
+                if (dialog.SelectedAction == OmniWeigh.Desktop.Views.Dialogs.CompletionActionDialog.ActionChoice.Print ||
+                    dialog.SelectedAction == OmniWeigh.Desktop.Views.Dialogs.CompletionActionDialog.ActionChoice.SavePdf)
+                {
+                    var preview = new OmniWeigh.Desktop.Views.Dialogs.PrintPreviewWindow(doc);
+                    preview.ShowDialog();
+                }
+
+                // Reset session
+                SessionEntries.Clear();
+                IsSessionActive = false;
+                _currentSessionId = Guid.Empty;
+                GenerateDocumentNumber();
+                WeighingReference = string.Empty;
+                OnPropertyChanged(nameof(HasSessionEntries));
+            }
+        }
 
         private void OnWeightReceived(object? sender, double weightValue)
         {

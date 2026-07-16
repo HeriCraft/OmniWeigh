@@ -1,14 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using OmniWeigh.Core.Models;
 
 namespace OmniWeigh.Core.Data
 {
     public class OmniDbContext : DbContext
     {
+        public DbSet<Company> Companies { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<Weighing> Weighings { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<WeighingSession> WeighingSessions { get; set; }
+        public DbSet<WeighingHistory> WeighingHistories { get; set; }
+        public DbSet<SequenceTracker> SequenceTrackers { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // On isole la base de données dans le dossier LocalApplicationData de la machine
@@ -31,18 +35,34 @@ namespace OmniWeigh.Core.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuration des relations pour garantir l'intégrité des données
-            modelBuilder.Entity<Weighing>()
-                .HasOne(w => w.Client)
-                .WithMany(c => c.Weighings)
-                .HasForeignKey(w => w.ClientId)
-                .OnDelete(DeleteBehavior.Restrict); // Empêche de supprimer un client s'il a des pesées associées
+            // Configuration de WeighingHistory
+            modelBuilder.Entity<WeighingHistory>(entity =>
+            {
+                entity.ToTable("WeighingHistory");
+                
+                entity.HasOne(w => w.Product)
+                      .WithMany(p => p.WeighingHistories)
+                      .HasForeignKey(w => w.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict); // Empêche de supprimer un produit s'il a des pesées associées
+                      
+                entity.HasOne(w => w.Session)
+                      .WithMany(s => s.HistoryRecords)
+                      .HasForeignKey(w => w.SessionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<Weighing>()
-                .HasOne(w => w.Product)
-                .WithMany(p => p.Weighings)
-                .HasForeignKey(w => w.ProductId)
-                .OnDelete(DeleteBehavior.Restrict); // Empêche de supprimer un produit s'il a des pesées associées
+            // Configuration de Document
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.Client)
+                .WithMany(c => c.Documents)
+                .HasForeignKey(d => d.ClientId)
+                .OnDelete(DeleteBehavior.Restrict); // Empêche de supprimer un client s'il a des documents associés
+
+            // Configuration de SequenceTracker
+            modelBuilder.Entity<SequenceTracker>(entity =>
+            {
+                entity.HasIndex(e => e.EntityType).IsUnique();
+            });
 
             modelBuilder.Entity<Vehicle>(entity =>
             {
