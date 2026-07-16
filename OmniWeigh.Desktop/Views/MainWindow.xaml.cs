@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using OmniWeigh.Desktop.Views.Pages;
 
@@ -25,7 +25,25 @@ namespace OmniWeigh.Desktop.Views
 
         private void BtnPrisePoids_Click(object sender, RoutedEventArgs e)
         {
-            this.ContentRegion.Content = new PriseDePoidsView();
+            var dialog = new OmniWeigh.Desktop.Views.Dialogs.PreSessionWarningDialog
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true && dialog.SessionStarted)
+            {
+                this.ContentRegion.Content = new PriseDePoidsView();
+            }
+            else
+            {
+                // Revert visual selection if canceled (since standard command logic might have selected it)
+                var vm = this.DataContext as OmniWeigh.Desktop.ViewModels.WeighingViewModel;
+                if (vm != null)
+                {
+                    vm.SelectedMenu = "Accueil"; // Back to home
+                }
+                this.ContentRegion.Content = new AccueilView();
+            }
         }
 
         private void BtnHistorique_Click(object sender, RoutedEventArgs e)

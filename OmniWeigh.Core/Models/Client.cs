@@ -1,4 +1,4 @@
-﻿namespace OmniWeigh.Core.Models
+namespace OmniWeigh.Core.Models
 {
     public class Client
     {
@@ -9,6 +9,6 @@
         public string Name { get; set; } = string.Empty;
         public string ContactInfo { get; set; } = string.Empty;
 
-        public virtual ICollection<Weighing> Weighings { get; set; } = new List<Weighing>();
+        public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
     }
 }

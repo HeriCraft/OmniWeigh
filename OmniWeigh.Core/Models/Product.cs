@@ -1,4 +1,4 @@
-﻿namespace OmniWeigh.Core.Models
+namespace OmniWeigh.Core.Models
 {
     public class Product
     {
@@ -12,6 +12,6 @@
         // Devise, par défaut MGA
         public string Currency { get; set; } = "MGA";
 
-        public virtual ICollection<Weighing> Weighings { get; set; } = new List<Weighing>();
+        public virtual ICollection<WeighingHistory> WeighingHistories { get; set; } = new List<WeighingHistory>();
     }
 }

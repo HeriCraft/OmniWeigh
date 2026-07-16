@@ -1,0 +1,46 @@
+<Window x:Class="OmniWeigh.Desktop.Views.Dialogs.PreSessionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nouvelle Session" Height="250" Width="450"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Border Background="White" CornerRadius="12" Margin="15">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.2"/>
+        </Border.Effect>
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Text="Nouvelle Session de Pesée" FontSize="18" FontWeight="Bold" Foreground="#1C3A6C" Margin="0,0,0,10"/>
+            
+            <TextBlock Grid.Row="1" TextWrapping="Wrap" FontSize="14" Foreground="#4A5568" LineHeight="20">
+                Vous êtes sur le point de démarrer une session continue. 
+                <LineBreak/>
+                <Run FontWeight="SemiBold" Foreground="#E53E3E">Toutes les pesées enregistrées feront partie du même document.</Run>
+                <LineBreak/>
+                Une session ne peut pas être mise en pause une fois commencée.
+            </TextBlock>
+            
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Annuler" Width="100" Height="35" Background="#E2E8F0" Foreground="#2D3748" BorderThickness="0" Margin="0,0,10,0" Click="BtnCancel_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+                <Button Content="Commencer la session" Width="160" Height="35" Background="#1C3A6C" Foreground="White" FontWeight="SemiBold" BorderThickness="0" Click="BtnStart_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
