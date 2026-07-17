@@ -4,10 +4,256 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="800">
-    <Grid>
-        <Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20">
-            <TextBlock Text="Historique" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <DataTemplate x:Key="ClientFilterHeaderTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ToggleButton x:Name="FilterBtn" Content="&#xE71C;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="12" Width="24" Height="24" Background="Transparent" BorderThickness="0" ToolTip="Filtrer par Client">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+                <Popup IsOpen="{Binding IsChecked, ElementName=FilterBtn}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterBtn}">
+                    <Border Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource FieldBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" Opacity="0.2"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="Filtrer par Client" Foreground="White" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <TextBox Width="180" Height="28" Text="{Binding DataContext.FilterClient, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15" Padding="5" Background="{StaticResource FieldBackgroundBrush}" Foreground="White" BorderBrush="{StaticResource FieldBorderBrush}" />
+                            <Button Content="Appliquer" Command="{Binding DataContext.ApplyFiltersCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Width="100" Height="28" Background="{StaticResource SaveButtonBrush}" Foreground="White" BorderThickness="0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ProductFilterHeaderTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ToggleButton x:Name="FilterBtn" Content="&#xE71C;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="12" Width="24" Height="24" Background="Transparent" BorderThickness="0" ToolTip="Filtrer par Produit">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+                <Popup IsOpen="{Binding IsChecked, ElementName=FilterBtn}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterBtn}">
+                    <Border Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource FieldBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" Opacity="0.2"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="Filtrer par Produit" Foreground="White" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <TextBox Width="180" Height="28" Text="{Binding DataContext.FilterProduct, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15" Padding="5" Background="{StaticResource FieldBackgroundBrush}" Foreground="White" BorderBrush="{StaticResource FieldBorderBrush}" />
+                            <Button Content="Appliquer" Command="{Binding DataContext.ApplyFiltersCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Width="100" Height="28" Background="{StaticResource SaveButtonBrush}" Foreground="White" BorderThickness="0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="WeightFilterHeaderTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ToggleButton x:Name="FilterBtn" Content="&#xE71C;" FontFamily="Segoe MDL2 Assets" Foreground="White" FontSize="12" Width="24" Height="24" Background="Transparent" BorderThickness="0" ToolTip="Plage de Poids">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+                <Popup IsOpen="{Binding IsChecked, ElementName=FilterBtn}" StaysOpen="False" PlacementTarget="{Binding ElementName=FilterBtn}">
+                    <Border Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource FieldBorderBrush}" BorderThickness="1" CornerRadius="6" Padding="15">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="15" Opacity="0.25"/>
+                        </Border.Effect>
+                        <StackPanel Width="220">
+                            <TextBlock Text="Filtrer par Poids Net" Foreground="White" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,10"/>
+                            
+                            <TextBlock HorizontalAlignment="Center" Margin="0,0,0,10" Foreground="{StaticResource AccentInfoBrush}" FontWeight="Bold" FontSize="13">
+                                <Run Text="{Binding DataContext.FilterMinWeight, RelativeSource={RelativeSource AncestorType=DataGrid}, StringFormat={}{0:0}}"/>
+                                <Run Text=" kg  ➔  "/>
+                                <Run Text="{Binding DataContext.FilterMaxWeight, RelativeSource={RelativeSource AncestorType=DataGrid}, StringFormat={}{0:0}}"/>
+                                <Run Text=" kg"/>
+                            </TextBlock>
+                            
+                            <TextBlock Text="Poids Minimum :" FontSize="12" Foreground="#A0A0A0"/>
+                            <Slider Minimum="0" Maximum="100000" Value="{Binding DataContext.FilterMinWeight, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" IsSnapToTickEnabled="True" TickFrequency="100" AutoToolTipPlacement="TopLeft"/>
+                            
+                            <TextBlock Text="Poids Maximum :" FontSize="12" Foreground="#A0A0A0"/>
+                            <Slider Minimum="0" Maximum="100000" Value="{Binding DataContext.FilterMaxWeight, RelativeSource={RelativeSource AncestorType=DataGrid}, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15" IsSnapToTickEnabled="True" TickFrequency="100" AutoToolTipPlacement="TopLeft"/>
+                            
+                            <Button Content="Appliquer le filtre" Command="{Binding DataContext.ApplyFiltersCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Width="140" Height="30" Background="{StaticResource SaveButtonBrush}" Foreground="White" FontWeight="SemiBold" BorderThickness="0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20,15" Margin="0,0,0,15">
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentInfoBrush}" FontSize="22" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Historique des Pesées" Foreground="White" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </StackPanel>
+                
+                <Button HorizontalAlignment="Right" VerticalAlignment="Center" Command="{Binding ResetFiltersCommand}" Background="{StaticResource FieldBackgroundBrush}" Foreground="White" Height="34" Padding="15,0" BorderThickness="1" BorderBrush="{StaticResource FieldBorderBrush}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Réinitialiser les filtres" FontFamily="Segoe UI" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button.Content>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource FieldBackgroundFocusedBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="1" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="15">
+            <DataGrid ItemsSource="{Binding HistoryRecords}" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True" 
+                      CanUserAddRows="False" 
+                      CanUserSortColumns="True"
+                      HeadersVisibility="Column"
+                      GridLinesVisibility="None"
+                      BorderThickness="0"
+                      Background="Transparent"
+                      RowBackground="{StaticResource FieldBackgroundBrush}"
+                      AlternatingRowBackground="{StaticResource CardBackgroundBrush}"
+                      Foreground="White"
+                      SelectionUnit="FullRow"
+                      SelectionMode="Single"
+                      ColumnHeaderHeight="38"
+                      FontSize="14">
+                
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="{StaticResource FieldBackgroundBrush}" />
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                        <Setter Property="Padding" Value="8,6" />
+                        <Setter Property="BorderBrush" Value="{StaticResource FieldBorderBrush}" />
+                        <Setter Property="BorderThickness" Value="0,0,0,1" />
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Date &amp; Heure" Binding="{Binding Timestamp, StringFormat='{}{0:dd/MM/yyyy HH:mm:ss}'}" Width="150" />
+                    <DataGridTextColumn Header="N° BL" Binding="{Binding DeliveryNoteReference}" Width="140"/>
+                    <DataGridTextColumn Header="Client" Binding="{Binding ClientName}" Width="*" HeaderTemplate="{StaticResource ClientFilterHeaderTemplate}"/>
+                    <DataGridTextColumn Header="Produit" Binding="{Binding ProductName}" Width="*" HeaderTemplate="{StaticResource ProductFilterHeaderTemplate}"/>
+                    <DataGridTextColumn Header="Qté" Binding="{Binding Quantity}" Width="70" />
+                    <DataGridTextColumn Header="Unité" Binding="{Binding Unit}" Width="70" />
+                    <DataGridTextColumn Header="Poids Net" Binding="{Binding NetWeight, StringFormat='{}{0:0.##} kg'}" Width="130" HeaderTemplate="{StaticResource WeightFilterHeaderTemplate}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Pagination Controls -->
+        <Border Grid.Row="2" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="15" Margin="0,15,0,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="Total : " Foreground="#A0B2C6" FontSize="13" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding TotalItems}" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    <TextBlock Text=" enregistrements" Foreground="#A0B2C6" FontSize="13"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="&#xE76B; Précédent" FontFamily="Segoe UI" Command="{Binding PreviousPageCommand}" Width="110" Height="34" Background="{StaticResource FieldBackgroundBrush}" Foreground="White" BorderThickness="1" BorderBrush="{StaticResource FieldBorderBrush}" Margin="0,0,15,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource FieldBackgroundFocusedBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    
+                    <TextBlock VerticalAlignment="Center" Margin="0,0,15,0" FontSize="14" Foreground="#A0B2C6">
+                        <Run Text="Page "/>
+                        <Run Text="{Binding CurrentPage}" Foreground="White" FontWeight="Bold"/>
+                        <Run Text=" sur "/>
+                        <Run Text="{Binding TotalPages}" Foreground="White" FontWeight="Bold"/>
+                    </TextBlock>
+                    
+                    <Button Content="Suivant &#xE76C;" FontFamily="Segoe UI" Command="{Binding NextPageCommand}" Width="110" Height="34" Background="{StaticResource SaveButtonBrush}" Foreground="White" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Background" Value="{StaticResource FieldBackgroundBrush}"/>
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

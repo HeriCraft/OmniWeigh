@@ -84,5 +84,65 @@ namespace OmniWeigh.Core.Services
         {
             return $"PP-{Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper()}";
         }
+
+        public async Task<(System.Collections.Generic.IEnumerable<OmniWeigh.Core.Services.DTOs.HistoryRecordDto> Records, int TotalCount)> GetHistoryAsync(int pageNumber, int pageSize, OmniWeigh.Core.Services.DTOs.HistoryFilterDto? filter = null)
+        {
+            var query = _dbContext.WeighingHistories
+                .Include(h => h.Session)
+                    .ThenInclude(s => s.Document)
+                        .ThenInclude(d => d.Client)
+                .Include(h => h.Product)
+                .AsQueryable();
+
+            if (filter != null)
+            {
+                if (!string.IsNullOrWhiteSpace(filter.ClientName))
+                {
+                    query = query.Where(h => h.Session.Document != null && h.Session.Document.Client != null && h.Session.Document.Client.Name.Contains(filter.ClientName));
+                }
+                if (!string.IsNullOrWhiteSpace(filter.ProductName))
+                {
+                    query = query.Where(h => h.Product != null && h.Product.Name.Contains(filter.ProductName));
+                }
+                if (filter.MinWeight.HasValue)
+                {
+                    query = query.Where(h => (h.GrossWeight - h.Tare) >= filter.MinWeight.Value);
+                }
+                if (filter.MaxWeight.HasValue)
+                {
+                    query = query.Where(h => (h.GrossWeight - h.Tare) <= filter.MaxWeight.Value);
+                }
+                if (filter.StartDate.HasValue)
+                {
+                    query = query.Where(h => h.Timestamp >= filter.StartDate.Value);
+                }
+                if (filter.EndDate.HasValue)
+                {
+                    query = query.Where(h => h.Timestamp <= filter.EndDate.Value);
+                }
+            }
+
+            query = query.OrderByDescending(h => h.Timestamp);
+
+            var totalCount = await query.CountAsync();
+
+            var records = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(h => new OmniWeigh.Core.Services.DTOs.HistoryRecordDto
+                {
+                    Id = h.Id,
+                    Timestamp = h.Timestamp,
+                    DeliveryNoteReference = h.Session.Document != null ? h.Session.Document.DocumentNumber : string.Empty,
+                    ClientName = h.Session.Document != null && h.Session.Document.Client != null ? h.Session.Document.Client.Name : string.Empty,
+                    ProductName = h.Product != null ? h.Product.Name : string.Empty,
+                    Quantity = h.Quantity,
+                    Unit = h.Unit.ToString(),
+                    NetWeight = h.GrossWeight - h.Tare
+                })
+                .ToListAsync();
+
+            return (records, totalCount);
+        }
     }
 }

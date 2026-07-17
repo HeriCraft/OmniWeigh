@@ -292,6 +292,7 @@ namespace OmniWeigh.Desktop.ViewModels
             if (!_isSessionActive)
             {
                 var dialog = new OmniWeigh.Desktop.Views.Dialogs.PreSessionDialog();
+                dialog.Owner = System.Windows.Application.Current.MainWindow;
                 if (dialog.ShowDialog() != true)
                 {
                     return;
@@ -326,6 +327,7 @@ namespace OmniWeigh.Desktop.ViewModels
         private void PromptCompleteSeries()
         {
             var dialog = new OmniWeigh.Desktop.Views.Dialogs.CompletionActionDialog();
+            dialog.Owner = System.Windows.Application.Current.MainWindow;
             if (dialog.ShowDialog() == true)
             {
                 var doc = OmniWeigh.Desktop.Services.DocumentGenerator.GenerateDocument(
@@ -343,6 +345,7 @@ namespace OmniWeigh.Desktop.ViewModels
                     dialog.SelectedAction == OmniWeigh.Desktop.Views.Dialogs.CompletionActionDialog.ActionChoice.SavePdf)
                 {
                     var preview = new OmniWeigh.Desktop.Views.Dialogs.PrintPreviewWindow(doc);
+                    preview.Owner = System.Windows.Application.Current.MainWindow;
                     preview.ShowDialog();
                 }
 
@@ -389,7 +392,8 @@ namespace OmniWeigh.Desktop.ViewModels
             var vm = new NewClientViewModel();
             var win = new OmniWeigh.Desktop.Views.NewClientWindow
             {
-                DataContext = vm
+                DataContext = vm,
+                Owner = System.Windows.Application.Current.MainWindow
             };
 
             var result = win.ShowDialog();
@@ -441,7 +445,8 @@ namespace OmniWeigh.Desktop.ViewModels
             var vm = new NewProductViewModel();
             var win = new OmniWeigh.Desktop.Views.NewProductWindow
             {
-                DataContext = vm
+                DataContext = vm,
+                Owner = System.Windows.Application.Current.MainWindow
             };
 
             var result = win.ShowDialog();
@@ -483,7 +488,8 @@ namespace OmniWeigh.Desktop.ViewModels
 
             var win = new OmniWeigh.Desktop.Views.NewVehicleWindow
             {
-                DataContext = vm
+                DataContext = vm,
+                Owner = System.Windows.Application.Current.MainWindow
             };
 
             var result = win.ShowDialog();

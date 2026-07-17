@@ -25,10 +25,8 @@ namespace OmniWeigh.Desktop.Views
 
         private void BtnPrisePoids_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OmniWeigh.Desktop.Views.Dialogs.PreSessionWarningDialog
-            {
-                Owner = this
-            };
+            var dialog = new Views.Dialogs.PreSessionWarningDialog();
+            dialog.Owner = this;
 
             if (dialog.ShowDialog() == true && dialog.SessionStarted)
             {
