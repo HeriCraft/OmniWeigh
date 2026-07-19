@@ -13,6 +13,7 @@ namespace OmniWeigh.Core.Data
         public DbSet<WeighingSession> WeighingSessions { get; set; }
         public DbSet<WeighingHistory> WeighingHistories { get; set; }
         public DbSet<SequenceTracker> SequenceTrackers { get; set; }
+        public DbSet<AppSetting> AppSettings { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // On isole la base de données dans le dossier LocalApplicationData de la machine

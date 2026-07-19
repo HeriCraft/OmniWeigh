@@ -1,4 +1,5 @@
 using System;
+using CommunityToolkit.Mvvm.Messaging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -157,7 +158,8 @@ namespace OmniWeigh.Desktop.ViewModels
                             Id = p.Id,
                             Reference = p.Reference,
                             Name = p.Name,
-                            ImagePath = p.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", p.ImageFileName) : string.Empty
+                            ImagePath = p.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", p.ImageFileName) : string.Empty,
+                            Thumbnail = CreateLeanThumbnail(p.ImageFileName)
                         });
                     }
 
@@ -169,7 +171,8 @@ namespace OmniWeigh.Desktop.ViewModels
                             Registration = v.Registration,
                             Type = v.Type,
                             MaxLoad = v.MaxLoad ?? string.Empty,
-                            ImagePath = v.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", v.ImageFileName) : string.Empty
+                            ImagePath = v.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", v.ImageFileName) : string.Empty,
+                            Thumbnail = CreateLeanThumbnail(v.ImageFileName)
                         });
                     }
                 });
@@ -273,6 +276,30 @@ namespace OmniWeigh.Desktop.ViewModels
         private VehicleItem? _selectedVehicleItem;
         public VehicleItem? SelectedVehicleItem { get => _selectedVehicleItem; set { _selectedVehicleItem = value; OnPropertyChanged(); VehiclePlate = value?.Registration ?? string.Empty; } }
 
+        private System.Windows.Media.ImageSource? CreateLeanThumbnail(string? imageFileName)
+        {
+            if (string.IsNullOrWhiteSpace(imageFileName)) return null;
+            var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", imageFileName);
+            if (!System.IO.File.Exists(path)) return null;
+
+            try
+            {
+                var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bmp.DecodePixelHeight = 30;
+                bmp.UriSource = new Uri(path);
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create lean thumbnail for {ImageFileName}", imageFileName);
+                return null;
+            }
+        }
+
         private void GenerateDocumentNumber()
         {
             string prefix = DocumentType switch
@@ -318,8 +345,68 @@ namespace OmniWeigh.Desktop.ViewModels
                 Product = SelectedProductItem != null ? new OmniWeigh.Core.Models.Product { Id = SelectedProductItem.Id, Name = SelectedProductItem.Name } : null!
             };
 
-            // Assuming DbContext DI is tricky from VM without service, we will just add to list for now.
-            // In a real scenario we use _weighingService.
+            // Save to Database
+            using (var db = new OmniWeigh.Core.Data.OmniDbContext())
+            {
+                var session = db.WeighingSessions.FirstOrDefault(s => s.Id == _currentSessionId);
+                if (session == null)
+                {
+                    // Create document
+                    var doc = new OmniWeigh.Core.Models.Document
+                    {
+                        DocumentNumber = this.DocumentNumber,
+                        Type = Enum.TryParse<OmniWeigh.Core.Models.DocumentType>(this.DocumentType.Replace(" ", ""), true, out var t) ? t : OmniWeigh.Core.Models.DocumentType.BonDeLivraison,
+                        ClientId = SelectedClientItem?.Id ?? 1,
+                        DriverName = OperatorName,
+                        CreatedAt = DateTime.Now
+                    };
+                    db.Documents.Add(doc);
+                    db.SaveChanges();
+
+                    session = new OmniWeigh.Core.Models.WeighingSession
+                    {
+                        Id = _currentSessionId,
+                        DocumentId = doc.Id,
+                        StartedAt = DateTime.Now,
+                        IsClosed = false
+                    };
+                    db.WeighingSessions.Add(session);
+                    db.SaveChanges();
+                }
+
+                var entryDb = new OmniWeigh.Core.Models.WeighingHistory
+                {
+                    SessionId = _currentSessionId,
+                    WeighingReference = this.WeighingReference,
+                    Unit = entry.Unit,
+                    Quantity = this.Quantity,
+                    Observation = this.Observation,
+                    GrossWeight = this.PoidsBrut,
+                    Tare = this.Tare,
+                    Timestamp = DateTime.Now,
+                    ProductId = SelectedProductItem?.Id ?? 1
+                };
+
+                db.WeighingHistories.Add(entryDb);
+                db.SaveChanges();
+
+                // Create DTO for messaging
+                var dto = new OmniWeigh.Core.Services.DTOs.HistoryRecordDto
+                {
+                    Id = entryDb.Id,
+                    Timestamp = entryDb.Timestamp,
+                    DeliveryNoteReference = this.DocumentNumber,
+                    ClientName = SelectedClientItem?.Name ?? string.Empty,
+                    ProductName = SelectedProductItem?.Name ?? string.Empty,
+                    Quantity = entryDb.Quantity,
+                    Unit = entryDb.Unit.ToString(),
+                    NetWeight = entryDb.GrossWeight - entryDb.Tare
+                };
+
+                // Notify UI to update history
+                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new OmniWeigh.Desktop.Messages.WeighingSavedMessage(dto));
+            }
+
             SessionEntries.Add(entry);
             OnPropertyChanged(nameof(HasSessionEntries));
         }
@@ -330,6 +417,11 @@ namespace OmniWeigh.Desktop.ViewModels
             dialog.Owner = System.Windows.Application.Current.MainWindow;
             if (dialog.ShowDialog() == true)
             {
+                using (var db = new OmniWeigh.Core.Data.OmniDbContext())
+                {
+                    this.CurrentCompany = db.Companies.FirstOrDefault() ?? this.CurrentCompany;
+                }
+
                 var doc = OmniWeigh.Desktop.Services.DocumentGenerator.GenerateDocument(
                     this.DocumentType,
                     this.DocumentNumber,
@@ -466,7 +558,8 @@ namespace OmniWeigh.Desktop.ViewModels
                         Id = saved.Id,
                         Reference = saved.Reference,
                         Name = saved.Name,
-                        ImagePath = saved.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", saved.ImageFileName) : string.Empty
+                        ImagePath = saved.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", saved.ImageFileName) : string.Empty,
+                        Thumbnail = CreateLeanThumbnail(saved.ImageFileName)
                     };
 
                     ProductsList.Add(added);
@@ -518,7 +611,8 @@ namespace OmniWeigh.Desktop.ViewModels
                         Registration = saved.Registration,
                         Type = saved.Type,
                         MaxLoad = saved.MaxLoad ?? string.Empty,
-                        ImagePath = saved.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", saved.ImageFileName) : string.Empty
+                        ImagePath = saved.ImageFileName is not null ? System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "OmniWeigh", "images", saved.ImageFileName) : string.Empty,
+                        Thumbnail = CreateLeanThumbnail(saved.ImageFileName)
                     });
                 }
                 catch (Exception ex)
@@ -567,6 +661,7 @@ namespace OmniWeigh.Desktop.ViewModels
         public string Reference { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string ImagePath { get; set; } = string.Empty;
+        public System.Windows.Media.ImageSource? Thumbnail { get; set; }
     }
     public class VehicleItem
     {
@@ -575,6 +670,7 @@ namespace OmniWeigh.Desktop.ViewModels
         public string Type { get; set; } = string.Empty;
         public string ImagePath { get; set; } = string.Empty;
         public string MaxLoad { get; set; } = string.Empty;
+        public System.Windows.Media.ImageSource? Thumbnail { get; set; }
     }
 }
 

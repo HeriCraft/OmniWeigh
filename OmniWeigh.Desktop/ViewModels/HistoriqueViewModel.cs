@@ -2,12 +2,14 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using OmniWeigh.Core.Services;
 using OmniWeigh.Core.Services.DTOs;
+using OmniWeigh.Desktop.Messages;
 
 namespace OmniWeigh.Desktop.ViewModels
 {
-    public partial class HistoriqueViewModel : ObservableObject
+    public partial class HistoriqueViewModel : ObservableObject, IRecipient<WeighingSavedMessage>
     {
         private readonly IWeighingSessionService _weighingSessionService;
 
@@ -15,6 +17,8 @@ namespace OmniWeigh.Desktop.ViewModels
         {
             _weighingSessionService = weighingSessionService;
             HistoryRecords = new ObservableCollection<HistoryRecordDto>();
+            
+            WeakReferenceMessenger.Default.Register(this);
         }
 
         public ObservableCollection<HistoryRecordDto> HistoryRecords { get; }
@@ -109,6 +113,44 @@ namespace OmniWeigh.Desktop.ViewModels
             FilterMinWeight = 0;
             FilterMaxWeight = 100000;
             await LoadPageAsync(1);
+        }
+
+        public void Receive(WeighingSavedMessage message)
+        {
+            // Update the UI on the main thread
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var record = message.NewRecord;
+
+                // Check if it matches current active filters
+                if (!string.IsNullOrWhiteSpace(FilterClient) && !record.ClientName.Contains(FilterClient, System.StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (!string.IsNullOrWhiteSpace(FilterProduct) && !record.ProductName.Contains(FilterProduct, System.StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (FilterMinWeight > 0 && record.NetWeight < FilterMinWeight)
+                    return;
+
+                if (FilterMaxWeight < 100000 && record.NetWeight > FilterMaxWeight)
+                    return;
+
+                // Push seamlessly into the collection without full reload if we are on page 1
+                if (CurrentPage == 1)
+                {
+                    HistoryRecords.Insert(0, record);
+
+                    // Respect page size by removing the last item if we exceed it
+                    if (HistoryRecords.Count > _pageSize)
+                    {
+                        HistoryRecords.RemoveAt(HistoryRecords.Count - 1);
+                    }
+                }
+
+                TotalItems++;
+                TotalPages = (TotalItems + _pageSize - 1) / _pageSize;
+                if (TotalPages == 0) TotalPages = 1;
+            });
         }
     }
 }

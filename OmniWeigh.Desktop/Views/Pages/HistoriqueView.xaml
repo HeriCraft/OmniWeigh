@@ -160,6 +160,9 @@
         <!-- DataGrid -->
         <Border Grid.Row="1" Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="15">
             <DataGrid ItemsSource="{Binding HistoryRecords}" 
+                      VirtualizingStackPanel.IsVirtualizing="True"
+                      VirtualizingStackPanel.VirtualizationMode="Recycling"
+                      ScrollViewer.CanContentScroll="True"
                       AutoGenerateColumns="False" 
                       IsReadOnly="True" 
                       CanUserAddRows="False" 

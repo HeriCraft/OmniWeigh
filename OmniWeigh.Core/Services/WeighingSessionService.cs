@@ -7,10 +7,12 @@ namespace OmniWeigh.Core.Services
     public class WeighingSessionService : IWeighingSessionService
     {
         private readonly OmniDbContext _dbContext;
+        private readonly IWeighingEventAggregator _eventAggregator;
 
-        public WeighingSessionService(OmniDbContext dbContext)
+        public WeighingSessionService(OmniDbContext dbContext, IWeighingEventAggregator eventAggregator)
         {
             _dbContext = dbContext;
+            _eventAggregator = eventAggregator;
         }
 
         public async Task<WeighingSession> CreateSessionAsync(int documentId)
@@ -65,6 +67,31 @@ namespace OmniWeigh.Core.Services
 
             _dbContext.WeighingHistories.Add(record);
             await _dbContext.SaveChangesAsync();
+
+            // Load navigational properties required for complete DTO mapping
+            await _dbContext.Entry(record).Reference(r => r.Product).LoadAsync();
+            await _dbContext.Entry(record).Reference(r => r.Session).Query().Include(s => s.Document).ThenInclude(d => d.Client).LoadAsync();
+
+            // Broadcast decoupled event
+            var dto = new OmniWeigh.Core.Services.DTOs.WeighingHistoryItemDto
+            {
+                HistoryId = record.Id,
+                SessionId = record.SessionId,
+                Timestamp = record.Timestamp,
+                WeighingReference = record.WeighingReference,
+                DocumentNumber = record.Session?.Document?.DocumentNumber ?? string.Empty,
+                DocumentType = record.Session?.Document?.Type.ToString() ?? string.Empty,
+                ClientName = record.Session?.Document?.Client?.Name ?? string.Empty,
+                ProductName = record.Product?.Name ?? string.Empty,
+                GrossWeight = record.GrossWeight,
+                Tare = record.Tare,
+                NetWeight = record.GrossWeight - record.Tare,
+                Quantity = record.Quantity,
+                Unit = record.Unit,
+                Observation = record.Observation
+            };
+
+            _eventAggregator.PublishWeighingCreated(dto);
 
             return record;
         }

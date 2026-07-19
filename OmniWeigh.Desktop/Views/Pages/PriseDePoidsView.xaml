@@ -13,10 +13,10 @@
             <StackPanel Orientation="Horizontal">
                 <!-- Image Container with Fallback -->
                 <Grid Height="30" MinWidth="30" Margin="0,0,10,0">
-                    <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedTextBrush}" x:Name="FallbackIcon"/>
-                    <Image Source="{Binding ImagePath}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
+                    <TextBlock Text="📦" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" x:Name="FallbackIcon"/>
+                    <Image Source="{Binding Thumbnail}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
                 </Grid>
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
             </StackPanel>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding ImagePath}" Value="{x:Null}">
@@ -35,10 +35,10 @@
             <StackPanel Orientation="Horizontal">
                 <!-- Image Container with Fallback -->
                 <Grid Height="30" MinWidth="30" Margin="0,0,10,0">
-                    <TextBlock Text="🚛" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedTextBrush}" x:Name="FallbackIcon"/>
-                    <Image Source="{Binding ImagePath}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
+                    <TextBlock Text="🚛" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" x:Name="FallbackIcon"/>
+                    <Image Source="{Binding Thumbnail}" Stretch="Uniform" Height="30" x:Name="ItemImage"/>
                 </Grid>
-                <TextBlock Text="{Binding Registration}" VerticalAlignment="Center" Foreground="Black" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Registration}" VerticalAlignment="Center" Foreground="White" FontWeight="SemiBold"/>
             </StackPanel>
             <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding ImagePath}" Value="{x:Null}">

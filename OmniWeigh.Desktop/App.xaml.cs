@@ -41,14 +41,24 @@ namespace OmniWeigh.Desktop
             // Core services
             services.AddTransient<OmniWeigh.Core.Data.OmniDbContext>();
             services.AddTransient<IWeighingSessionService, WeighingSessionService>();
+            services.AddSingleton<IWeighingEventAggregator, WeighingEventAggregator>();
+            services.AddTransient<IWeighingHistoryQueryService, WeighingHistoryQueryService>();
+            
+            // Configuration & HAL
+            services.AddTransient<IConfigurationService, ConfigurationService>();
+            services.AddSingleton<IConfigurationRegistry, ConfigurationRegistry>();
+            services.AddTransient<IScaleDriverFactory, ScaleDriverFactory>();
+
             services.AddSingleton<IClientService, ClientService>();
             services.AddSingleton<IProductService, ProductService>();
             services.AddSingleton<IVehicleService, VehicleService>();
             services.AddSingleton<IBalanceDriver, MockBalanceDriver>();
+            services.AddSingleton<ISettingsService, SettingsService>();
 
             // ViewModels
             services.AddSingleton<WeighingViewModel>();
             services.AddTransient<HistoriqueViewModel>();
+            services.AddTransient<ParametresViewModel>();
         }
     }
 }
