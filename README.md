@@ -17,6 +17,7 @@ The software is engineered with a strict modular monolithic architecture (**Modu
 * [Documentation Technique Globale](documentations/TECHNICAL_DOCUMENTATION.md) : Architectural overview, component diagrams, database schemas, and technical implementation details.
 * [Spécifications Techniques Prise de Poids](documentations/PriseDePoids_Documentation.md#2-documentation-technique--architecture-ingénierie) : Flowcharts Mermaid.js d'initialisation et d'enregistrement, dictionnaire de données et modèles SIMEX-ci (`history` table).
 * [Architecture & Paramètres Systèmes](documentations/Parametres_Documentation.md) : Dictionnaire de données (Company, HardwareProfile) et cartographie Mermaid.js du `ConfigurationRegistry` (Single Source of Truth).
+* [Synchronisation Dynamique des Données](documentations/DataSynchronization_Documentation.md) : Diagramme de séquence Mermaid.js détaillant le cycle de vie d'une sauvegarde via l'Event Broker (`WeakReferenceMessenger`) et le rafraîchissement automatique de l'interface WPF.
 
 ---
 
