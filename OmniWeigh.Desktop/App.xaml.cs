@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,6 +11,8 @@ namespace OmniWeigh.Desktop
     public partial class App : Application
     {
         private IServiceProvider? _serviceProvider;
+        public new static App Current => (App)Application.Current;
+        public IServiceProvider Services => _serviceProvider ?? throw new InvalidOperationException("Services not initialized");
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -37,13 +39,26 @@ namespace OmniWeigh.Desktop
             services.AddLogging(builder => builder.AddDebug());
 
             // Core services
+            services.AddTransient<OmniWeigh.Core.Data.OmniDbContext>();
+            services.AddTransient<IWeighingSessionService, WeighingSessionService>();
+            services.AddSingleton<IWeighingEventAggregator, WeighingEventAggregator>();
+            services.AddTransient<IWeighingHistoryQueryService, WeighingHistoryQueryService>();
+            
+            // Configuration & HAL
+            services.AddTransient<IConfigurationService, ConfigurationService>();
+            services.AddSingleton<IConfigurationRegistry, ConfigurationRegistry>();
+            services.AddTransient<IScaleDriverFactory, ScaleDriverFactory>();
+
             services.AddSingleton<IClientService, ClientService>();
             services.AddSingleton<IProductService, ProductService>();
             services.AddSingleton<IVehicleService, VehicleService>();
             services.AddSingleton<IBalanceDriver, MockBalanceDriver>();
+            services.AddSingleton<ISettingsService, SettingsService>();
 
             // ViewModels
             services.AddSingleton<WeighingViewModel>();
+            services.AddTransient<HistoriqueViewModel>();
+            services.AddTransient<ParametresViewModel>();
         }
     }
 }

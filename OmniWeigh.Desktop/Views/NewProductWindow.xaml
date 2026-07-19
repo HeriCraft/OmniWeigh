@@ -1,10 +1,10 @@
 <Window x:Class="OmniWeigh.Desktop.Views.NewProductWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Nouveau produit" Height="320" Width="520" Background="{StaticResource ApplicationBackgroundBrush}"
-        Style="{StaticResource DialogWindowStyle}" WindowStartupLocation="CenterScreen">
+        Title="Nouveau produit" Height="320" Width="520" WindowStartupLocation="CenterOwner"
+        Style="{DynamicResource DialogWindowStyle}">
     <Grid Margin="12">
-        <Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="6" Padding="16">
+        <Border Padding="16">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -39,8 +39,8 @@
                 </Grid>
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                    <Button Content="Annuler" Width="96" Height="32" Margin="12,0,8,0" Command="{Binding CancelCommand}" />
-                    <Button Content="Enregistrer" Width="120" Height="32" Background="{StaticResource SaveButtonBrush}" Foreground="White" Command="{Binding SaveCommand}" />
+                    <Button Content="Annuler" Width="96" Margin="12,0,8,0" Command="{Binding CancelCommand}" Style="{DynamicResource SecondaryDialogButton}" />
+                    <Button Content="Enregistrer" Width="120" Command="{Binding SaveCommand}" Style="{DynamicResource PrimaryDialogButton}" />
                 </StackPanel>
             </Grid>
         </Border>

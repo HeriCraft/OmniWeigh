@@ -98,7 +98,26 @@ namespace OmniWeigh.Desktop.Services
 
             // Company Info
             var coSp = new StackPanel { VerticalAlignment = VerticalAlignment.Top };
-            coSp.Children.Add(new TextBlock { Text = (company?.Name ?? "SIMEX-ci").ToUpper(), FontSize = 22, FontWeight = FontWeights.Bold, Foreground = primaryBlue, Margin = new Thickness(0,0,0,5) });
+            if (company != null && !string.IsNullOrEmpty(company.LogoPath) && System.IO.File.Exists(company.LogoPath))
+            {
+                try 
+                {
+                    var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                    bmp.BeginInit();
+                    bmp.UriSource = new Uri(company.LogoPath, UriKind.Absolute);
+                    bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    bmp.EndInit();
+                    coSp.Children.Add(new Image { Source = bmp, MaxHeight = 50, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0,0,0,5) });
+                }
+                catch
+                {
+                    coSp.Children.Add(new TextBlock { Text = company.Name.ToUpper(), FontSize = 22, FontWeight = FontWeights.Bold, Foreground = primaryBlue, Margin = new Thickness(0,0,0,5) });
+                }
+            }
+            else
+            {
+                coSp.Children.Add(new TextBlock { Text = (company?.Name ?? "SIMEX-ci").ToUpper(), FontSize = 22, FontWeight = FontWeights.Bold, Foreground = primaryBlue, Margin = new Thickness(0,0,0,5) });
+            }
             coSp.Children.Add(new TextBlock { Text = company?.Slogan ?? "Pesage • Métrologie • Maintenance", FontSize = 9 });
             coSp.Children.Add(new TextBlock { Text = company?.Address1 ?? "", FontSize = 9 });
             coSp.Children.Add(new TextBlock { Text = company?.Address2 ?? "", FontSize = 9 });
