@@ -43,6 +43,9 @@ namespace OmniWeigh.Desktop
             services.AddTransient<IWeighingSessionService, WeighingSessionService>();
             services.AddSingleton<IWeighingEventAggregator, WeighingEventAggregator>();
             services.AddTransient<IWeighingHistoryQueryService, WeighingHistoryQueryService>();
+            services.AddTransient<IAnalyticsService, AnalyticsService>();
+            services.AddTransient<IReportQueryService, ReportQueryService>();
+            services.AddTransient<IReportExportService, ReportExportService>();
             
             // Configuration & HAL
             services.AddTransient<IConfigurationService, ConfigurationService>();
@@ -58,8 +61,8 @@ namespace OmniWeigh.Desktop
             // ViewModels
             services.AddSingleton<WeighingViewModel>();
             services.AddTransient<HistoriqueViewModel>();
-            services.AddTransient<ParametresViewModel>();
+            services.AddTransient<OmniWeigh.Desktop.ViewModels.ParametresViewModel>();
+            services.AddTransient<OmniWeigh.Desktop.ViewModels.RapportsViewModel>();
         }
     }
 }
-
