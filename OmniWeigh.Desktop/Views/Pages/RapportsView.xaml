@@ -3,11 +3,295 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="800">
-    <Grid>
-        <Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20">
-            <TextBlock Text="Rapports" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Border>
+             d:DesignHeight="700" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <Style TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border" Padding="15,10" Background="Transparent" BorderThickness="0,0,0,3" BorderBrush="Transparent">
+                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="10,2"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#3273F6" />
+                                <Setter Property="Foreground" Value="#3273F6" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter Property="Foreground" Value="#A0AABF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <!-- KPI Card Style -->
+        <Style TargetType="Border" x:Key="KpiCardStyle">
+            <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="20" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource ApplicationBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="30,20,30,10">
+            <TextBlock Text="Rapports &amp; Analytiques" Foreground="White" FontSize="28" FontWeight="Bold" />
+            <TextBlock Text="Visualisez les performances et exportez vos données" Foreground="{StaticResource MutedTextBrush}" FontSize="14" Margin="0,5,0,0" />
+        </StackPanel>
+
+        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="25,10,25,25">
+            <!-- DASHBOARD GÉNÉRAL -->
+            <TabItem Header="Dashboard Général">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- GLOBAL FILTER BAR -->
+                    <Border Grid.Row="0" Background="{StaticResource PanelDarkerBrush}" CornerRadius="8" Padding="15,10" Margin="5,0,5,15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Quick Selects -->
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock Text="&#xE163;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource MutedTextBrush}" FontSize="18" VerticalAlignment="Center" Margin="0,0,15,0"/>
+                                <Button Content="Aujourd'hui" Command="{Binding SetPeriodCommand}" CommandParameter="Today" Background="Transparent" Foreground="White" BorderThickness="0" Margin="0,0,10,0"/>
+                                <Button Content="7 Derniers Jours" Command="{Binding SetPeriodCommand}" CommandParameter="7Days" Background="Transparent" Foreground="White" BorderThickness="0" Margin="0,0,10,0"/>
+                                <Button Content="Mois en cours" Command="{Binding SetPeriodCommand}" CommandParameter="ThisMonth" Background="Transparent" Foreground="White" BorderThickness="0"/>
+                            </StackPanel>
+                            
+                            <!-- Date Pickers -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <DatePicker SelectedDate="{Binding StartDate}" Width="130" Height="30" Margin="0,0,10,0" />
+                                <TextBlock Text="au" Foreground="{StaticResource MutedTextBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <DatePicker SelectedDate="{Binding EndDate}" Width="130" Height="30" Margin="0,0,15,0" />
+                                <Button Command="{Binding RefreshDataCommand}" Content="&#xE117;" FontFamily="Segoe MDL2 Assets" Background="{StaticResource AccentInfoBrush}" Foreground="White" BorderThickness="0" Width="36" Height="30">
+                                    <Button.Resources>
+                                        <Style TargetType="Border">
+                                            <Setter Property="CornerRadius" Value="4"/>
+                                        </Style>
+                                    </Button.Resources>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,15,0">
+                        <Grid Margin="5,0,5,5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="350"/>
+                                <RowDefinition Height="350"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- KPIs -->
+                            <Grid Grid.Row="0" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE8B1;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentInfoBrush}" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Poids Net Total (kg)" Foreground="{StaticResource MutedTextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding TotalVolume, StringFormat={}{0:N2}}" Foreground="White" FontSize="26" FontWeight="Bold" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE118;" FontFamily="Segoe MDL2 Assets" Foreground="#F39C12" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Sessions / BL" Foreground="{StaticResource MutedTextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding TotalSessions}" Foreground="White" FontSize="26" FontWeight="Bold" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE17F;" FontFamily="Segoe MDL2 Assets" Foreground="#2ECC71" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Top Produit" Foreground="{StaticResource MutedTextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding TopProduct}" Foreground="White" FontSize="22" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="3" Style="{StaticResource KpiCardStyle}">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" Foreground="#9B59B6" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Top Client" Foreground="{StaticResource MutedTextBrush}" FontSize="14" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding TopClient}" Foreground="White" FontSize="22" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <!-- CHARTS ROW 1 (Trends & Distribution) -->
+                            <Grid Grid.Row="1" Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Volume Trend -->
+                                <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}" Margin="5,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Tendance des Volumes (kg)" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                        <lvc:CartesianChart Grid.Row="1" Background="Transparent" Series="{Binding VolumeSeries}" XAxes="{Binding XAxes}" YAxes="{Binding YAxes}" LegendTextPaint="{Binding LegendTextPaint}" TooltipTextPaint="{Binding TooltipTextPaint}" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Product Breakdown (Donut) -->
+                                <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}" Margin="0,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Mix Produits" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                        <lvc:PieChart Grid.Row="1" Background="Transparent" Series="{Binding ProductDistributionSeries}" LegendPosition="Right" LegendTextPaint="{Binding LegendTextPaint}" TooltipTextPaint="{Binding TooltipTextPaint}" />
+                                    </Grid>
+                                </Border>
+                                
+                                <!-- Document Breakdown (Donut) -->
+                                <Border Grid.Column="2" Style="{StaticResource KpiCardStyle}" Margin="0,0,5,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Types de Mouvements" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                        <lvc:PieChart Grid.Row="1" Background="Transparent" Series="{Binding DocumentTypeSeries}" LegendPosition="Right" LegendTextPaint="{Binding LegendTextPaint}" TooltipTextPaint="{Binding TooltipTextPaint}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            
+                            <!-- CHARTS ROW 2 (Peak & Fleet) -->
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.5*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Peak Activity (Bar Chart) -->
+                                <Border Grid.Column="0" Style="{StaticResource KpiCardStyle}" Margin="5,0,10,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Pics d'Activité Horaires" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                        <lvc:CartesianChart Grid.Row="1" Background="Transparent" Series="{Binding PeakActivitySeries}" XAxes="{Binding PeakActivityXAxes}" YAxes="{Binding PeakActivityYAxes}" TooltipPosition="Top" LegendTextPaint="{Binding LegendTextPaint}" TooltipTextPaint="{Binding TooltipTextPaint}" />
+                                    </Grid>
+                                </Border>
+                                
+                                <!-- Logistics/Fleet Distribution (Horizontal Bar) -->
+                                <Border Grid.Column="1" Style="{StaticResource KpiCardStyle}" Margin="0,0,5,0">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Top Clients par Volume" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                                        <lvc:CartesianChart Grid.Row="1" Background="Transparent" Series="{Binding ClientDistributionSeries}" XAxes="{Binding ClientDistributionXAxes}" YAxes="{Binding ClientDistributionYAxes}" TooltipPosition="Right" LegendTextPaint="{Binding LegendTextPaint}" TooltipTextPaint="{Binding TooltipTextPaint}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- ANALYSES AVANCÉES -->
+            <TabItem Header="Analyses Avancées">
+                <Border Style="{StaticResource KpiCardStyle}" Margin="5,15,5,5">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="📈" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,20" />
+                        <TextBlock Text="L'analyse croisée et les rapports détaillés arriveront dans une prochaine mise à jour." Foreground="White" FontSize="18" TextAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </TabItem>
+
+            <!-- GÉNÉRATEUR DE RAPPORTS -->
+            <TabItem Header="Générateur de Rapports">
+                <Border Style="{StaticResource KpiCardStyle}" Margin="5,15,5,5" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Text="Filtres d'exportation" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
+                        
+                        <Grid Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Date de début" Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,5"/>
+                                <DatePicker SelectedDate="{Binding StartDate}" Height="35" Background="White"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Date de fin" Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,5"/>
+                                <DatePicker SelectedDate="{Binding EndDate}" Height="35" Background="White"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Button Command="{Binding RefreshDataCommand}" Content="Appliquer les filtres (MAJ Dashboard)" Background="#333333" Foreground="White" BorderThickness="0" Height="40" Margin="0,0,0,30" Padding="20,0"/>
+
+                        <Separator Background="#333333" Margin="0,0,0,30"/>
+
+                        <TextBlock Text="Exporter les données brutes (Historique)" Foreground="White" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Génère un fichier Excel (.xlsx) contenant toutes les pesées effectuées dans la période sélectionnée." Foreground="{StaticResource MutedTextBrush}" TextWrapping="Wrap" Margin="0,0,0,15"/>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding ExportToExcelCommand}" Content="Exporter en Excel" Background="#1D6F42" Foreground="White" BorderThickness="0" Height="40" Padding="30,0" Margin="0,0,15,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+
+                            <Button Command="{Binding ExportToPdfCommand}" Content="Rapport Synthétique (PDF)" Background="#C0392B" Foreground="White" BorderThickness="0" Height="40" Padding="30,0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>
