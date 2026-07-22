@@ -80,6 +80,7 @@ namespace OmniWeigh.Desktop.ViewModels
             OpenNewProductCommand = new RelayCommand(_ => OpenNewProduct());
             OpenNewVehicleCommand = new RelayCommand(_ => OpenNewVehicle());
             ClearClientSearchCommand = new RelayCommand(_ => ClientSearchQuery = string.Empty);
+            StartNewSessionCommand = new RelayCommand(_ => CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new OmniWeigh.Desktop.Messages.NavigateToPriseDePoidsMessage()));
 
             // Collections and views
             ClientsList = new ObservableCollection<ClientItem>();
@@ -260,6 +261,7 @@ namespace OmniWeigh.Desktop.ViewModels
         public ICommand OpenNewProductCommand { get; }
         public ICommand ClearClientSearchCommand { get; }
         public ICommand OpenNewVehicleCommand { get; }
+        public ICommand StartNewSessionCommand { get; }
 
         private string _clientSearchQuery = string.Empty;
         public string ClientSearchQuery { get => _clientSearchQuery; set { _clientSearchQuery = value; OnPropertyChanged(); ClientsView?.Refresh(); } }

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using CommunityToolkit.Mvvm.Messaging;
 using OmniWeigh.Desktop.Views.Pages;
 
 namespace OmniWeigh.Desktop.Views
@@ -7,7 +8,7 @@ namespace OmniWeigh.Desktop.Views
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, CommunityToolkit.Mvvm.Messaging.IRecipient<OmniWeigh.Desktop.Messages.NavigateToPriseDePoidsMessage>
     {
         public MainWindow()
         {
@@ -16,6 +17,16 @@ namespace OmniWeigh.Desktop.Views
 
             // Par défaut afficher la page Accueil (vide). Le contenu principal a été déplacé dans PriseDePoidsView.
             this.ContentRegion.Content = new AccueilView();
+
+            WeakReferenceMessenger.Default.RegisterAll(this);
+        }
+
+        public void Receive(OmniWeigh.Desktop.Messages.NavigateToPriseDePoidsMessage message)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                StartWeighingSessionWorkflow();
+            });
         }
 
         private void BtnAccueil_Click(object sender, RoutedEventArgs e)
@@ -25,12 +36,24 @@ namespace OmniWeigh.Desktop.Views
 
         private void BtnPrisePoids_Click(object sender, RoutedEventArgs e)
         {
+            StartWeighingSessionWorkflow();
+        }
+
+        private void StartWeighingSessionWorkflow()
+        {
             var dialog = new Views.Dialogs.PreSessionWarningDialog();
             dialog.Owner = this;
 
             if (dialog.ShowDialog() == true && dialog.SessionStarted)
             {
                 this.ContentRegion.Content = new PriseDePoidsView();
+                
+                // Update Sidebar visually
+                var vm = this.DataContext as OmniWeigh.Desktop.ViewModels.WeighingViewModel;
+                if (vm != null)
+                {
+                    vm.SelectedMenu = "PriseDePoids";
+                }
             }
             else
             {

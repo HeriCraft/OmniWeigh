@@ -6,16 +6,75 @@ using Microsoft.EntityFrameworkCore;
 using OmniWeigh.Core.Data;
 using OmniWeigh.Core.Models;
 using OmniWeigh.Core.Services.DTOs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace OmniWeigh.Core.Services
 {
     public class AnalyticsService : IAnalyticsService
     {
         private readonly OmniDbContext _dbContext;
+        private readonly Microsoft.Extensions.Caching.Memory.IMemoryCache _cache;
 
-        public AnalyticsService(OmniDbContext dbContext)
+        public AnalyticsService(OmniDbContext dbContext, Microsoft.Extensions.Caching.Memory.IMemoryCache cache)
         {
             _dbContext = dbContext;
+            _cache = cache;
+        }
+
+        public async Task<DailyMetricsDto> GetDailyMetricsAsync()
+        {
+            const string cacheKey = "DailyMetrics_CacheKey";
+            if (_cache.TryGetValue(cacheKey, out DailyMetricsDto? cachedMetrics) && cachedMetrics != null)
+            {
+                return cachedMetrics;
+            }
+
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            var query = _dbContext.WeighingHistories
+                .AsNoTracking()
+                .Where(w => w.Timestamp >= today && w.Timestamp < tomorrow);
+
+            var totalWeighings = await query.CountAsync();
+            var totalNetWeight = await query.SumAsync(w => w.GrossWeight - w.Tare);
+
+            var lastDoc = await _dbContext.Documents
+                .AsNoTracking()
+                .OrderByDescending(d => d.CreatedAt)
+                .Select(d => d.DocumentNumber)
+                .FirstOrDefaultAsync();
+
+            var recentTransactions = await query
+                .Include(w => w.Product)
+                .Include(w => w.Session).ThenInclude(s => s.Document).ThenInclude(d => d.Client)
+                .OrderByDescending(w => w.Timestamp)
+                .Take(10)
+                .Select(w => new RecentTransactionDto
+                {
+                    Timestamp = w.Timestamp,
+                    ClientName = w.Session != null && w.Session.Document != null && w.Session.Document.Client != null ? w.Session.Document.Client.Name : "N/A",
+                    ProductName = w.Product != null ? w.Product.Name : "N/A",
+                    NetWeight = w.GrossWeight - w.Tare,
+                    Unit = w.Unit,
+                    DocumentReference = w.Session != null && w.Session.Document != null ? w.Session.Document.DocumentNumber : "-"
+                })
+                .ToListAsync();
+
+            var metrics = new DailyMetricsDto
+            {
+                TotalWeighingsToday = totalWeighings,
+                TotalNetWeightToday = totalNetWeight,
+                LastDocumentReference = lastDoc ?? "-",
+                RecentTransactions = recentTransactions
+            };
+
+            var cacheOptions = new Microsoft.Extensions.Caching.Memory.MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(2));
+
+            _cache.Set(cacheKey, metrics, cacheOptions);
+
+            return metrics;
         }
 
         private IQueryable<WeighingHistory> BuildBaseQuery(ReportFilter filter)
