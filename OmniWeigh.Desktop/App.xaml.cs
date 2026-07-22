@@ -37,9 +37,11 @@ namespace OmniWeigh.Desktop
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(builder => builder.AddDebug());
+            services.AddMemoryCache();
 
             // Core services
             services.AddTransient<OmniWeigh.Core.Data.OmniDbContext>();
+            services.AddSingleton<IHardwareStateProvider, HardwareStateProvider>();
             services.AddTransient<IWeighingSessionService, WeighingSessionService>();
             services.AddSingleton<IWeighingEventAggregator, WeighingEventAggregator>();
             services.AddTransient<IWeighingHistoryQueryService, WeighingHistoryQueryService>();
@@ -60,6 +62,7 @@ namespace OmniWeigh.Desktop
 
             // ViewModels
             services.AddSingleton<WeighingViewModel>();
+            services.AddTransient<OmniWeigh.Desktop.ViewModels.AccueilViewModel>();
             services.AddTransient<HistoriqueViewModel>();
             services.AddTransient<OmniWeigh.Desktop.ViewModels.ParametresViewModel>();
             services.AddTransient<OmniWeigh.Desktop.ViewModels.RapportsViewModel>();

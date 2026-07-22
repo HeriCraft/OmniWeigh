@@ -4,10 +4,226 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="800">
-    <Grid>
-        <Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="8" Padding="20">
-            <TextBlock Text="Accueil" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+             d:DesignHeight="800" d:DesignWidth="1100"
+             Background="{StaticResource ApplicationBackgroundBrush}">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Hero -->
+            <RowDefinition Height="Auto"/> <!-- Hardware Diagnostic Widget & Daily Summary -->
+            <RowDefinition Height="*"/>    <!-- Activity Feed -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Hero Layout & Command Center -->
+        <Grid Grid.Row="0" Margin="0,0,0,25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Welcome & Clock -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Tableau de Bord" Foreground="White" FontSize="36" FontWeight="Light" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding CurrentDate}" Foreground="{StaticResource MutedTextBrush}" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding CurrentTime}" Foreground="White" FontSize="48" FontWeight="Thin" FontFamily="Segoe UI Light" Margin="0,-5,0,0"/>
+            </StackPanel>
+
+            <!-- Right: Primary Action Card -->
+            <Button Grid.Column="1" Command="{Binding NewWeighingSessionCommand}" Background="{StaticResource AccentInfoBrush}" Foreground="White" BorderThickness="0" Padding="40,25" Cursor="Hand" VerticalAlignment="Center">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="⚖️" FontSize="32" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Nouvelle Session" FontSize="24" FontWeight="Bold" Margin="0,0,0,2"/>
+                        <TextBlock Text="Pesée standard (F2)" FontSize="14" Foreground="#D0E3F3"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Middle Section: Hardware Diagnostic & KPIs -->
+        <Grid Grid.Row="1" Margin="0,0,0,25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/> <!-- Hardware Widget -->
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/> <!-- Daily Summary KPIs -->
+            </Grid.ColumnDefinitions>
+
+            <!-- 2. Hardware Diagnostic Widget -->
+            <Border Grid.Column="0" Background="{StaticResource CardBackgroundBrush}" CornerRadius="12" Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="STATUT MATÉRIEL" Foreground="{StaticResource MutedTextBrush}" FontSize="12" FontWeight="Bold"/>
+
+                    <!-- LED Indicators -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,15,0,15">
+                        <Border Background="#101825" CornerRadius="20" Padding="12,6" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10" Fill="{Binding ScaleStatusColor}" VerticalAlignment="Center" Margin="0,0,8,0">
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect Color="{Binding ScaleStatusColor}" BlurRadius="8" ShadowDepth="0"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <TextBlock Text="{Binding ScaleStatus}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Background="#101825" CornerRadius="20" Padding="12,6">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="10" Height="10" Fill="{Binding PrinterStatusColor}" VerticalAlignment="Center" Margin="0,0,8,0">
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect Color="{Binding PrinterStatusColor}" BlurRadius="8" ShadowDepth="0"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                                <TextBlock Text="{Binding PrinterStatus}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Live Digital Readout -->
+                    <Border Grid.Row="2" Background="#0C1521" CornerRadius="8" BorderThickness="1" BorderBrush="#1B2E4A" Padding="15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding LiveWeight}" Foreground="#2ECC71" FontSize="42" FontFamily="Consolas" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect Color="#2ECC71" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" Text="kg" Foreground="{StaticResource MutedTextBrush}" FontSize="18" VerticalAlignment="Bottom" Margin="10,0,0,8"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- 3a. Daily Summary KPIs -->
+            <Grid Grid.Column="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Background="{StaticResource CardBackgroundBrush}" CornerRadius="12" Padding="25">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="PESÉES DU JOUR" Foreground="{StaticResource MutedTextBrush}" FontSize="13" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalWeighingsToday}" Foreground="White" FontSize="42" FontWeight="Bold" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Background="{StaticResource CardBackgroundBrush}" CornerRadius="12" Padding="25">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="TONNAGE DU JOUR (KG)" Foreground="{StaticResource MutedTextBrush}" FontSize="13" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding TotalNetWeightToday}" Foreground="White" FontSize="42" FontWeight="Bold" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- 3b. Recent Activity Table -->
+        <Border Grid.Row="2" Background="{StaticResource CardBackgroundBrush}" CornerRadius="12" Padding="25">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Text="Activité Récente" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                
+                <!-- Modern Web-Style DataGrid -->
+                <DataGrid Grid.Row="1" ItemsSource="{Binding RecentActivities}" AutoGenerateColumns="False" CanUserAddRows="False" 
+                          IsReadOnly="True" HeadersVisibility="Column" Background="Transparent" RowBackground="Transparent"
+                          BorderThickness="0" GridLinesVisibility="None" SelectionMode="Single">
+                    
+                    <DataGrid.Resources>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="15,10,15,15"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}"/>
+                        </Style>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}"/>
+                            <Setter Property="MinHeight" Value="55"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#1A2840"/> <!-- Subtle hover effect -->
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource FieldBackgroundFocusedBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="15,0"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="HEURE" Binding="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}" Width="90"/>
+                        <DataGridTextColumn Header="REFERENCE" Binding="{Binding WeighingReference}" Width="150">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Foreground" Value="{StaticResource AccentInfoBrush}"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="CLIENT" Binding="{Binding ClientName}" Width="*"/>
+                        <DataGridTextColumn Header="PRODUIT" Binding="{Binding ProductName}" Width="*"/>
+                        <DataGridTextColumn Header="POIDS NET" Binding="{Binding NetWeight, StringFormat='{}{0:N0} kg'}" Width="120">
+                             <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        
+                        <DataGridTemplateColumn Header="" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="🖨️" Command="{Binding DataContext.ReprintCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#2B3C5A" BorderThickness="0" Foreground="White" Cursor="Hand" Margin="0,0,8,0" ToolTip="Réimprimer" Width="36" Height="36">
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="18"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                        <Button Content="ℹ️" Command="{Binding DataContext.ViewDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="#2B3C5A" BorderThickness="0" Foreground="White" Cursor="Hand" ToolTip="Détails" Width="36" Height="36">
+                                            <Button.Resources>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="CornerRadius" Value="18"/>
+                                                </Style>
+                                            </Button.Resources>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

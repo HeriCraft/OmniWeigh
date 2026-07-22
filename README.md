@@ -19,6 +19,7 @@ The software is engineered with a strict modular monolithic architecture (**Modu
 * [Architecture & Paramètres Systèmes](documentations/Parametres_Documentation.md) : Dictionnaire de données (Company, HardwareProfile) et cartographie Mermaid.js du `ConfigurationRegistry` (Single Source of Truth).
 * [Synchronisation Dynamique des Données](documentations/DataSynchronization_Documentation.md) : Diagramme de séquence Mermaid.js détaillant le cycle de vie d'une sauvegarde via l'Event Broker (`WeakReferenceMessenger`) et le rafraîchissement automatique de l'interface WPF.
 * [Rapports & Business Intelligence (BI)](documentations/Rapports_BI_Documentation.md) : Diagramme de flux d'agrégation SQL (Entity Framework), dictionnaire des KPIs de performance, et pipeline d'exportation PDF/Excel.
+* [Tableau de Bord (Accueil)](documentations/Accueil_Documentation.md) : Architecture de l'écran d'accueil, polling du statut matériel (Balance/Imprimante), et pipeline asynchrone des métriques journalières.
 
 ---
 
